@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "671889905357",
+    "project_id": "consumer-price-tracking",
+    "storage_bucket": "consumer-price-tracking.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:671889905357:android:8c7ebb75106fc743ee3b84",
+        "android_client_info": {
+          "package_name": "com.example.ecommerce_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqrDTRWTbFJV-SOpmltKRHdWKQEx25c7I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
