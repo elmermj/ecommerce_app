@@ -6,9 +6,12 @@ class LocalUserData {
   String userName;
   @HiveField(1)
   String? userProfPicUrl;
+  @HiveField(2)
+  String? userEmail;
 
   LocalUserData({
     required this.userName,
+    required this.userEmail,
     this.userProfPicUrl,
   });
 }

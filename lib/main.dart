@@ -1,28 +1,18 @@
-import 'package:ecommerce_app/firebase_options.dart';
+import 'package:ecommerce_app/dependency_injector/app_initialization.dart';
+import 'package:ecommerce_app/services/account_service.dart';
+import 'package:ecommerce_app/services/connectivity_service.dart';
 import 'package:ecommerce_app/theme.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-
-RxBool isLogin = false.obs;
 
 Future<void> main() async {
 
-  WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
+  AccountService accountService = Get.put(AccountService());
+  Get.put(ConnectivityService());
+  await appInitialization();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  if(FirebaseAuth.instance.currentUser != null){
-    isLogin.value == true;
-  }
-
-
-  runApp(ECommerceApp(isLogin: isLogin.value,));
+  runApp(ECommerceApp(isLogin: accountService.isLogin.value,));
+  
 }
 
 class ECommerceApp extends StatelessWidget {
