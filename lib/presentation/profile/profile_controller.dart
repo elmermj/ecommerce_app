@@ -7,7 +7,6 @@ class ProfileController extends GetxController {
 
   @override
   void onInit() {
-    // TODO: implement onInit
     super.onInit();
     profileNameEditController.text = '';
   }

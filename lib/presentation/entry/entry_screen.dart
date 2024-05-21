@@ -1,18 +1,24 @@
-import 'package:ecommerce_app/modules/entry/entry_controller.dart';
+import 'package:ecommerce_app/presentation/entry/entry_controller.dart';
 import 'package:ecommerce_app/utils/enums/entry_state_enum.dart';
 import 'package:ecommerce_app/widgets/custom_card_widget.dart';
+import 'package:ecommerce_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class EntryScreen extends GetView<EntryController> {
-  const EntryScreen({super.key});
+  EntryScreen({super.key});
+
+  @override
+  final EntryController controller = Get.put(EntryController(userDataModelRepository: Get.find()));
   
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          Center(
+          Align(
+            alignment: const AlignmentDirectional(0, 0.6),
             child: Obx(()=> switchState(controller.state.value)),
           )
         ],
@@ -28,55 +34,146 @@ class EntryScreen extends GetView<EntryController> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ElevatedButton(
-                onPressed: (){},
-                child: const Text('Google Login'),
+                onPressed: ()=>controller.commitGoogleLogin(),
+                child: Text(
+                  'Google Login',
+                  style: TextStyle(
+                    color: Get.theme.colorScheme.onSurface,
+                  )
+                ),
+              ),
+              const SizedBox(
+                height: 16,
               ),
               TextButton(
                 onPressed: (){
                   controller.state.value = EntryState.emailLogin;
                 }, 
-                child: const Text("Or login with Email.")
+                child: Text(
+                  "Or login with Email.",
+                  style: TextStyle(
+                    color: Get.theme.colorScheme.surface,
+                  )
+                )
               )
             ],
           ),
         );
       case EntryState.emailRegister:
         return CustomCardWidget(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          child: ListView(
+            padding: const EdgeInsets.all(0),
+            shrinkWrap: true,
             children: [
-              TextField(
-                controller: controller.emailEditController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                ),
+              CustomTextField(
+                labelText: "Name",
+                controller: controller.nameEditController
               ),
-              TextField(
+              CustomTextField(
+                labelText: "Email",
+                controller: controller.emailEditController
+              ),
+              CustomTextField(
+                labelText: "Confirm Email",
+                controller: controller.emailConfirmEditController
+              ),
+              CustomTextField(
+                labelText: "Password",
                 controller: controller.passwordEditController,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                ),
+                obscureText: true,
+              ),
+              CustomTextField(
+                labelText: "Confirm Password",
+                controller: controller.passwordConfirmController
               ),
               ElevatedButton(
                 onPressed: (){},
-                child: const Text('Login'),
+                child: const Text('Register'),
               ),
               TextButton(
                 onPressed: (){
                   controller.state.value = EntryState.emailLogin;
                 }, 
-                child: const Text("Or login with Email.")
+                child: Text(
+                  "Or login with Email.",
+                  style: TextStyle(
+                    color: Get.theme.colorScheme.surface,
+                  )
+                )
               )
             ],
           ),
         );
       case EntryState.emailLogin:
-        return const Text('Email Login');
+        return CustomCardWidget(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomTextField(
+                labelText: "Email",
+                controller: controller.emailEditController
+              ),
+              CustomTextField(
+                labelText: "Password",
+                controller: controller.passwordEditController,
+                obscureText: true,
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: TextButton(
+                      onPressed: (){
+                        controller.state.value = EntryState.googleLogin;
+                      }, 
+                      child: Row(
+                        children: [
+                          Icon(LucideIcons.chevronLeft, color: Get.theme.colorScheme.surface,),
+                          Text(
+                            "Back to Google Login",
+                            style: TextStyle(
+                              color: Get.theme.colorScheme.surface,
+                            ),
+                          ),
+                        ],
+                      )
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: ElevatedButton(
+                      onPressed: (){},
+                      child: Text(
+                        'Login',
+                        style: TextStyle(
+                          color: Get.theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              TextButton(
+                onPressed: (){
+                  controller.state.value = EntryState.emailRegister;
+                }, 
+                child: Text(
+                  "Don't have an account? Register here.",
+                  style: TextStyle(
+                    color: Get.theme.colorScheme.surface,
+                  ),
+                )
+              )
+            ],
+          ),
+        );
       default:
         return const Text('Error');
     }
   }
 
 }
-
-
