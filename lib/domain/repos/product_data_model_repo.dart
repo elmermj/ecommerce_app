@@ -72,6 +72,4 @@ class ProductDataModelRepositoryImpl implements ProductDataModelRepository {
     }
   }
 
-  
-
 }

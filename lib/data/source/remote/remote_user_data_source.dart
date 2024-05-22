@@ -7,6 +7,8 @@ abstract class RemoteUserDataSource {
   Future<void> updateUser(UserDataModel user);
   Future<void> createUser(UserDataModel user);
   Future<void> deleteUser(UserDataModel user);
+
+  Future<UserDataModel> getUserData(String userEmail);
 }
 
 class RemoteUserDataSourceImpl implements RemoteUserDataSource {
@@ -44,6 +46,17 @@ class RemoteUserDataSourceImpl implements RemoteUserDataSource {
   @override
   Future<void> deleteUser(UserDataModel user) async {
     await firestore.collection('users').doc(user.userEmail).delete();
+  }
+  
+  @override
+  Future<UserDataModel> getUserData(String userEmail) {
+    return firestore.collection('users').doc(userEmail).get().then((doc) {
+      return UserDataModel(
+        userName: doc.get('userName'),
+        userProfPicUrl: doc.get('userProfPicUrl'),
+        userEmail: doc.get('userEmail'),
+      );
+    });
   }
   
 }

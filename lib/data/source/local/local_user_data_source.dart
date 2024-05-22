@@ -3,6 +3,8 @@ import 'package:hive/hive.dart';
 
 abstract class LocalUserDataSource {
   Future<void> registerUser(UserDataModel user);
+  UserDataModel getUserData(String userEmail);
+
 }
 
 class LocalUserDataSourceImpl implements LocalUserDataSource {
@@ -13,5 +15,10 @@ class LocalUserDataSourceImpl implements LocalUserDataSource {
   @override
   Future<void> registerUser(UserDataModel user) async {
     await userBox.put(user.userEmail, user);
+  }
+  
+  @override
+  UserDataModel getUserData(String userEmail) {
+    return userBox.get(userEmail)!;
   }
 }

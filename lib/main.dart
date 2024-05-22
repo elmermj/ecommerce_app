@@ -24,13 +24,14 @@ Future<void> main() async {
 
   AccountService accountService = Get.find<AccountService>();
 
-  runApp(ECommerceApp(isLogin: accountService.isLogin.value,));
+  runApp(ECommerceApp(isLogin: accountService.isLogin.value, isAdmin: accountService.isAdmin));
   
 }
 
 class ECommerceApp extends StatelessWidget {
   final bool isLogin;
-  const ECommerceApp({required this.isLogin, super.key});
+  final bool isAdmin;
+  const ECommerceApp({required this.isLogin, super.key, required this.isAdmin});
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +149,7 @@ class ECommerceApp extends StatelessWidget {
         )
       ).dark(),
       initialRoute: '/',
-      home: isLogin? HomeScreen() : EntryScreen(),
+      home: isLogin? HomeScreen(isAdmin: isAdmin,) : EntryScreen(),
     );
   }
 }

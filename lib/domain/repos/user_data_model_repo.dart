@@ -11,6 +11,7 @@ abstract class UserDataModelRepository {
   Future<Either<Exception, void>> registerUser(UserDataModel user);
   Future<Either<Exception, UserDataModel>> emailLoginUser(String email, String password);
   Future<Either<Exception, UserDataModel>> googleLoginUser();
+  Future<Either<Exception, UserDataModel>> getUserData(String userEmail);
 }
 
 class UserDataModelRepositoryImpl implements UserDataModelRepository {
@@ -93,6 +94,21 @@ class UserDataModelRepositoryImpl implements UserDataModelRepository {
       }
     } catch (e) {
       return Left(Exception('Failed to log in with Google'));
+    }
+  }
+  
+  @override
+  Future<Either<Exception, UserDataModel>> getUserData(String userEmail) async {
+
+    try {
+      var res = localDataSource.getUserData(userEmail);
+      if (res == null) {
+        res = await remoteDataSource.getUserData(userEmail);
+        await localDataSource.registerUser(UserDataModel.fromDomain(res));
+      }
+      return Right(res);
+    } catch (e) {
+      return Left(Exception('Failed to get user data'));
     }
   }
 }
