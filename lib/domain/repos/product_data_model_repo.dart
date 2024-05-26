@@ -68,7 +68,8 @@ class ProductDataModelRepositoryImpl implements ProductDataModelRepository {
   @override
   Future<Either<Exception, void>> insertProduct(ProductDataModel product, File productImage) async {
     try {
-      await remoteProductDataSource.insertProduct(product, productImage);
+      String url = await remoteProductDataSource.insertProduct(product, productImage);
+      await localProductDataSource.insertProduct(product, productImage, url);
       PersistenceService(Hive.box<ImageModel>('images'), Hive.box<ProductDataModel>('productsBox')).syncRemoteDBWithLocalDB();
       return const Right(null);
     } on Exception catch (e) {

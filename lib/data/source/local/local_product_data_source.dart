@@ -6,7 +6,7 @@ import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 
 abstract class LocalProductDataSource {
-  Future<void> insertProduct(ProductDataModel product, File productImage);
+  Future<void> insertProduct(ProductDataModel product, File productImage, String imageUrl);
   Future<void> deleteProduct(ProductDataModel product);
   Future<ProductDataModel> getProduct(ProductDataModel product);
   Future<List<ProductDataModel>> getProducts(int pagination);
@@ -31,11 +31,11 @@ class LocalProductDataSourceImpl implements LocalProductDataSource {
   }
   
   @override
-  Future<void> insertProduct(ProductDataModel product, File productImage) async {
+  Future<void> insertProduct(ProductDataModel product, File productImage, String imageUrl) async {
     try {
       // Get the directory to save the image
       Directory directory = await getApplicationDocumentsDirectory();
-      String filePath = '${directory.path}/images/${product.productName}.png';
+      String filePath = '${directory.path}/images/$imageUrl.png';
 
       // Save the image file
       await productImage.copy(filePath);

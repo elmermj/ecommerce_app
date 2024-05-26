@@ -10,7 +10,7 @@ abstract class RemoteProductDataSource {
   Future<ProductDataModel> getProduct(ProductDataModel product);
   Future<List<ProductDataModel>> getProducts(int pagination);
   Future<void> updateProduct(ProductDataModel product, File? productImage);
-  Future<void> insertProduct(ProductDataModel product, File productImage);
+  Future<String> insertProduct(ProductDataModel product, File productImage);
   Future<void> deleteProduct(ProductDataModel product);
 }
 
@@ -62,7 +62,7 @@ class RemoteProductDataSourceImpl implements RemoteProductDataSource {
   }
 
   @override
-  Future<void> insertProduct(ProductDataModel product, File productImage) async {
+  Future<String> insertProduct(ProductDataModel product, File productImage) async {
     await storage.ref('productImages').child(product.productName).putFile(productImage);
     //create a json file, write a Map String, and upload it to storage
     Map<String, String> data = {'productName': product.productName};
@@ -73,7 +73,7 @@ class RemoteProductDataSourceImpl implements RemoteProductDataSource {
     await file.writeAsString(jsonData);
     await storage.ref('productIndex').child(product.productName).putFile(file);
 
-    String productImageUrl = await storage.ref('productImages').child(product.productName).getDownloadURL();
+    String productImageUrl = await storage.ref('productImages').child(product.productImageUrl!).getDownloadURL();
     await firestore.collection('products').doc(product.productName).set({
       'qty': product.qty,
       'productName': product.productName,
@@ -86,7 +86,7 @@ class RemoteProductDataSourceImpl implements RemoteProductDataSource {
       //increment
       'db_version': FieldValue.increment(1),
     });
-
+    return productImageUrl;
   }
 
   @override
