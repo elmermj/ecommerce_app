@@ -34,5 +34,15 @@ class ProductDataModel {
       productImageUrl: map['productImageUrl'],
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'qty': qty,
+      'productName': productName,
+      'productPrice': productPrice,
+      'productDesc': productDesc,
+      'productImageUrl': productImageUrl,
+    };
+  }
   
 }

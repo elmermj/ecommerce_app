@@ -43,11 +43,19 @@ class RemoteProductDataSourceImpl implements RemoteProductDataSource {
         'productDesc': product.productDesc,
         'productImageUrl': productImageUrl,
       });
+      await firestore.collection('version').doc("db_version").update({
+        //increment
+        'db_version': FieldValue.increment(1),
+      });
     }else{
       await firestore.collection('products').doc(product.productName).update({
         'qty': product.qty,
         'productPrice': product.productPrice,
         'productDesc': product.productDesc,
+      });
+      await firestore.collection('version').doc("db_version").update({
+        //increment
+        'db_version': FieldValue.increment(1),
       });
     }
     
@@ -73,6 +81,11 @@ class RemoteProductDataSourceImpl implements RemoteProductDataSource {
       'productDesc': product.productDesc,
       'productImageUrl': productImageUrl,
     });
+    
+    await firestore.collection('version').doc("db_version").update({
+      //increment
+      'db_version': FieldValue.increment(1),
+    });
 
   }
 
@@ -80,6 +93,11 @@ class RemoteProductDataSourceImpl implements RemoteProductDataSource {
   Future<void> deleteProduct(ProductDataModel product) async {
     await firestore.collection('products').doc(product.productName).delete();
     await storage.ref('productImages').child(product.productName).delete();
+    
+    await firestore.doc("db_version").update({
+      //increment
+      'db_version': FieldValue.increment(1),
+    });
   }
   
   @override

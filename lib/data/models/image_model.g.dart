@@ -1,41 +1,35 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'shopping_cart_model.dart';
+part of 'image_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class ShoppingCartModelAdapter extends TypeAdapter<ShoppingCartModel> {
+class ImageModelAdapter extends TypeAdapter<ImageModel> {
   @override
-  final int typeId = 2;
+  final int typeId = 3;
 
   @override
-  ShoppingCartModel read(BinaryReader reader) {
+  ImageModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return ShoppingCartModel(
-      products: (fields[0] as List).cast<ProductDataModel>(),
-      subTotal: fields[1] as double,
-      total: fields[2] as double,
-      shoppingCartId: fields[3] as String,
+    return ImageModel(
+      url: fields[0] as String,
+      localPath: fields[1] as String,
     );
   }
 
   @override
-  void write(BinaryWriter writer, ShoppingCartModel obj) {
+  void write(BinaryWriter writer, ImageModel obj) {
     writer
-      ..writeByte(4)
-      ..writeByte(0)
-      ..write(obj.products)
-      ..writeByte(1)
-      ..write(obj.subTotal)
       ..writeByte(2)
-      ..write(obj.total)
-      ..writeByte(3)
-      ..write(obj.shoppingCartId);
+      ..writeByte(0)
+      ..write(obj.url)
+      ..writeByte(1)
+      ..write(obj.localPath);
   }
 
   @override
@@ -44,7 +38,7 @@ class ShoppingCartModelAdapter extends TypeAdapter<ShoppingCartModel> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ShoppingCartModelAdapter &&
+      other is ImageModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

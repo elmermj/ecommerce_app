@@ -24,6 +24,8 @@ dependencies:
   dartz:
   google_sign_in: 
   path_provider: ^2.1.3
+  file_picker: ^8.0.3
+  image_picker: ^1.1.1
 
 dev_dependencies:
   flutter_test:

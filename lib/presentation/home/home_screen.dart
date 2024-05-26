@@ -1,4 +1,5 @@
 import 'package:ecommerce_app/presentation/home/home_controller.dart';
+import 'package:ecommerce_app/presentation/home/subscreen/home_main._screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -10,7 +11,8 @@ class HomeScreen extends GetView<HomeController> {
   final HomeController controller = Get.put(
                                       HomeController(
                                         productDataModelRepository: Get.find(),
-                                        userDataModelRepository: Get.find()
+                                        userDataModelRepository: Get.find(),
+                                        shoppingCartModelRepository: Get.find()
                                       )
                                     );
 
@@ -39,7 +41,7 @@ class HomeScreen extends GetView<HomeController> {
             Obx(() {
               switch(controller.index.value){
                 case 0:
-                  return Container();
+                  return HomeMainScreen();
                 case 1:
                   return Container();
                 default:

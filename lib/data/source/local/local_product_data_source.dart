@@ -35,7 +35,7 @@ class LocalProductDataSourceImpl implements LocalProductDataSource {
     try {
       // Get the directory to save the image
       Directory directory = await getApplicationDocumentsDirectory();
-      String filePath = '${directory.path}/${product.productName}.png';
+      String filePath = '${directory.path}/images/${product.productName}.png';
 
       // Save the image file
       await productImage.copy(filePath);
@@ -55,8 +55,9 @@ class LocalProductDataSourceImpl implements LocalProductDataSource {
   @override
   Future<List<ProductDataModel>> getProducts(int pagination) async {
     //read [paginate] products from hive database, sort by name and paginate
+    var products = productBox.values.toList();
 
-    return productBox.values.toList();
+    return products;
   }
 
 }

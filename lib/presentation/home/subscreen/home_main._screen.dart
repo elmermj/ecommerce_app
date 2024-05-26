@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 class HomeMainScreen extends StatelessWidget {
   HomeMainScreen({super.key});
 
-  @override
   final HomeController controller = Get.find<HomeController>();
 
   @override
@@ -42,7 +41,19 @@ class HomeMainScreen extends StatelessWidget {
               ),
             ),
           ),
-          GridView.builder(
+          controller.productsData.isEmpty? 
+          Container(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              'No Items Available',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Get.theme.colorScheme.onPrimary
+              ),
+            ),
+          )
+          : GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 16,

@@ -13,7 +13,7 @@ class ShoppingCartModel {
   @HiveField(2)
   double total;
   @HiveField(3)
-  double shoppingCartId;
+  String shoppingCartId;
 
   ShoppingCartModel({
     required this.products,
