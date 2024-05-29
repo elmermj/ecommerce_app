@@ -30,8 +30,9 @@ class EntryScreen extends GetView<EntryController> {
     switch(controller.state.value){
       case EntryState.googleLogin:
         return CustomCardWidget(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          child: ListView(
+            padding: const EdgeInsets.all(0),
+            shrinkWrap: true,
             children: [
               ElevatedButton(
                 onPressed: ()=>controller.commitGoogleLogin(),
@@ -60,54 +61,73 @@ class EntryScreen extends GetView<EntryController> {
           ),
         );
       case EntryState.emailRegister:
-        return CustomCardWidget(
-          child: ListView(
-            padding: const EdgeInsets.all(0),
-            shrinkWrap: true,
-            children: [
-              CustomTextField(
-                labelText: "Name",
-                controller: controller.nameEditController
-              ),
-              CustomTextField(
-                labelText: "Email",
-                controller: controller.emailEditController
-              ),
-              CustomTextField(
-                labelText: "Confirm Email",
-                controller: controller.emailConfirmEditController
-              ),
-              CustomTextField(
-                labelText: "Password",
-                controller: controller.passwordEditController,
-                obscureText: true,
-              ),
-              CustomTextField(
-                labelText: "Confirm Password",
-                controller: controller.passwordConfirmController
-              ),
-              ElevatedButton(
-                onPressed: (){},
-                child: const Text('Register'),
-              ),
-              TextButton(
-                onPressed: (){
-                  controller.state.value = EntryState.emailLogin;
-                }, 
-                child: Text(
-                  "Or login with Email.",
-                  style: TextStyle(
-                    color: Get.theme.colorScheme.surface,
-                  )
-                )
-              )
-            ],
+        return Obx(
+          ()=> CustomCardWidget(
+            child: ListView(
+              padding: const EdgeInsets.all(0),
+              shrinkWrap: true,
+              children: [
+                CustomTextField(
+                  labelText: "Name",
+                  controller: controller.nameEditController,
+                ),
+                CustomTextField(
+                  labelText: "Email",
+                  controller: controller.emailEditController,
+                ),
+                CustomTextField(
+                  labelText: "Confirm Email",
+                  controller: controller.emailConfirmEditController,
+                  onChanged: (text) {
+                    if (text != controller.emailEditController.text) {
+                      controller.emailErrorNotifier.value.value = "Emails do not match";
+                    } else {
+                      controller.emailErrorNotifier.value.value = null;
+                    }
+                  },
+                  errorNotifier: controller.emailErrorNotifier.value,
+                ),
+                CustomTextField(
+                  labelText: "Password",
+                  controller: controller.passwordEditController,
+                  obscureText: true,
+                ),
+                CustomTextField(
+                  labelText: "Confirm Password",
+                  controller: controller.passwordConfirmController,
+                  onChanged: (text) {
+                    if (text != controller.passwordEditController.text) {
+                      controller.passwordErrorNotifier.value.value = "Passwords do not match";
+                    } else {
+                      controller.passwordErrorNotifier.value.value = null;
+                    }
+                  },
+                  errorNotifier: controller.passwordErrorNotifier.value,
+                ),
+                ElevatedButton(
+                  onPressed: () => controller.commitEmailRegistration(),
+                  child: const Text('Register'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    controller.state.value = EntryState.emailLogin;
+                  },
+                  child: Text(
+                    "Or login with Email.",
+                    style: TextStyle(
+                      color: Get.theme.colorScheme.surface,
+                    ),
+                  ),
+                ),
+              ],
+            )
           ),
         );
       case EntryState.emailLogin:
         return CustomCardWidget(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          child: ListView(
+            padding: const EdgeInsets.all(0),
+            shrinkWrap: true,
             children: [
               CustomTextField(
                 labelText: "Email",
@@ -146,7 +166,7 @@ class EntryScreen extends GetView<EntryController> {
                   Expanded(
                     flex: 1,
                     child: ElevatedButton(
-                      onPressed: (){},
+                      onPressed: ()=>controller.commitEmailLogin(),
                       child: Text(
                         'Login',
                         style: TextStyle(

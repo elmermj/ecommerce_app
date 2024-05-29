@@ -34,30 +34,56 @@ class RemoteProductDataSourceImpl implements RemoteProductDataSource {
   
   @override
   Future<void> updateProduct(ProductDataModel product, File? productImage) async {
+    String? productImageUrl;
     if(productImage != null){
       await storage.ref('productImages').child(product.productName).putFile(productImage);
-      String productImageUrl = await storage.ref('productImages').child(product.productName).getDownloadURL();
-      await firestore.collection('products').doc(product.productName).update({
-        'qty': product.qty,
-        'productPrice': product.productPrice,
-        'productDesc': product.productDesc,
-        'productImageUrl': productImageUrl,
-      });
-      await firestore.collection('version').doc("db_version").update({
-        //increment
-        'db_version': FieldValue.increment(1),
-      });
-    }else{
-      await firestore.collection('products').doc(product.productName).update({
-        'qty': product.qty,
-        'productPrice': product.productPrice,
-        'productDesc': product.productDesc,
-      });
-      await firestore.collection('version').doc("db_version").update({
-        //increment
-        'db_version': FieldValue.increment(1),
-      });
+      productImageUrl = await storage.ref('productImages').child(product.productName).getDownloadURL();
     }
+    bool isExist = await firestore.collection('products').doc(product.productName).get().then((doc) {
+      if(doc.exists){
+        return true;
+      }else{
+        return false;
+      }
+    });
+    var batch = firestore.batch();
+
+    if(isExist){
+      batch.update(
+        firestore.collection('products').doc(product.productName),
+        {
+          'qty': product.qty,
+          'productPrice': product.productPrice,
+          'productDesc': product.productDesc,
+          'productImageUrl': productImageUrl,
+        }
+      );
+      batch.update(
+        firestore.collection('version').doc("db_version"),
+        {
+          'db_version': FieldValue.increment(1),
+        }
+      );
+    }else {
+      batch.set(
+        firestore.collection('products').doc(product.productName), 
+        {
+          'qty': product.qty,
+          'productName': product.productName,
+          'productPrice': product.productPrice,
+          'productDesc': product.productDesc,
+          'productImageUrl': productImageUrl,
+        }
+      );
+
+      batch.update(
+        firestore.collection('version').doc("db_version"),
+        {
+          'db_version': FieldValue.increment(1),
+        }
+      );
+    }
+    await batch.commit();
     
   }
 
@@ -70,22 +96,31 @@ class RemoteProductDataSourceImpl implements RemoteProductDataSource {
     Directory directory = await getApplicationDocumentsDirectory();
     String filePath = '${directory.path}/${product.productName}.json';
     File file = File(filePath);
+    var batch = firestore.batch();
+
     await file.writeAsString(jsonData);
     await storage.ref('productIndex').child(product.productName).putFile(file);
 
-    String productImageUrl = await storage.ref('productImages').child(product.productImageUrl!).getDownloadURL();
-    await firestore.collection('products').doc(product.productName).set({
-      'qty': product.qty,
-      'productName': product.productName,
-      'productPrice': product.productPrice,
-      'productDesc': product.productDesc,
-      'productImageUrl': productImageUrl,
-    });
-    
-    await firestore.collection('version').doc("db_version").update({
-      //increment
-      'db_version': FieldValue.increment(1),
-    });
+    String productImageUrl = await storage.ref('productImages').child(product.productName).getDownloadURL();
+    batch.set(
+      firestore.collection('products').doc(product.productName), 
+      {
+        'qty': product.qty,
+        'productName': product.productName,
+        'productPrice': product.productPrice,
+        'productDesc': product.productDesc,
+        'productImageUrl': productImageUrl,
+      }
+    );
+
+    batch.update(
+      firestore.collection('version').doc("db_version"),
+      {
+        'db_version': FieldValue.increment(1),
+      }
+    );
+
+    await batch.commit();
     return productImageUrl;
   }
 
@@ -93,6 +128,7 @@ class RemoteProductDataSourceImpl implements RemoteProductDataSource {
   Future<void> deleteProduct(ProductDataModel product) async {
     await firestore.collection('products').doc(product.productName).delete();
     await storage.ref('productImages').child(product.productName).delete();
+    await storage.ref('productIndex').child(product.productName).delete();
     
     await firestore.doc("db_version").update({
       //increment

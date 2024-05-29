@@ -4,6 +4,7 @@ import 'package:ecommerce_app/data/models/user_data_model.dart';
 import 'package:ecommerce_app/domain/repos/product_data_model_repo.dart';
 import 'package:ecommerce_app/domain/repos/shopping_cart_model_repo.dart';
 import 'package:ecommerce_app/domain/repos/user_data_model_repo.dart';
+import 'package:ecommerce_app/presentation/entry/entry_screen.dart';
 import 'package:ecommerce_app/utils/log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
@@ -25,13 +26,14 @@ class HomeController extends GetxController {
 
   RxList<ProductDataModel> productsData = <ProductDataModel>[].obs;
 
-  Rx<ShoppingCartModel>? shoppingCart;
+  Rx<ShoppingCartModel> shoppingCart = ShoppingCartModel(products: <ProductDataModel>[], total: 0, subTotal: 0, shoppingCartId: '').obs;
 
   RxList<Map<String,dynamic>> checkoutErrors = <Map<String,dynamic>>[].obs;
 
-  getShoppingCart() async {
+  getShoppingCarts() async {
     try{
-      await shoppingCartModelRepository.getShoppingCart(FirebaseAuth.instance.currentUser!.email!, shoppingCart!.value).then((res) {
+
+      await shoppingCartModelRepository.getAllShoppingCarts(FirebaseAuth.instance.currentUser!.email!).then((res) {
         res.fold(
           (exception) => Get.snackbar(
             'Error',
@@ -40,13 +42,14 @@ class HomeController extends GetxController {
             duration: const Duration(seconds: 3),
           ),
           (r) {
-            for (var index in r.products){
+            var lastCart = r.last;
+            for (var index in lastCart.products){
               checkoutErrors.add({
                 index.productName: true,
                 'stockLeft' : index.qty
               });
             }
-            return shoppingCart!.value = r;
+            return shoppingCart.value = lastCart;
           }
         );
       });
@@ -62,7 +65,7 @@ class HomeController extends GetxController {
 
   addProductToCart(ProductDataModel product) async {
     Log.yellow('addProductToCart');
-    await shoppingCartModelRepository.insertIntoShoppingCart(FirebaseAuth.instance.currentUser!.email!, product, shoppingCart!.value).then(
+    await shoppingCartModelRepository.insertIntoShoppingCart(FirebaseAuth.instance.currentUser!.email!, product, shoppingCart.value).then(
       (res) => res.fold(
         (exception) => Get.snackbar(
           'Error',
@@ -126,6 +129,7 @@ class HomeController extends GetxController {
           );
         },
         (user){
+          Log.green(user.userName);
           userData.value = user;
         }
       );
@@ -140,7 +144,7 @@ class HomeController extends GetxController {
 
   checkout() async {
     try {
-      final res = await shoppingCartModelRepository.checkoutShoppingCart(shoppingCart!.value);
+      final res = await shoppingCartModelRepository.checkoutShoppingCart(shoppingCart.value);
       res.fold(
         (exception) {
           Get.snackbar(
@@ -183,11 +187,25 @@ class HomeController extends GetxController {
 
   }
 
+  //logout
+  logout() async {
+    try{
+      await firebaseAuth.signOut();
+      Get.offAll(()=>EntryScreen());
+    }catch (e){
+      Get.snackbar(
+        'Error',
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),);
+    }
+  }
+
   @override
   Future<void> onInit() async {
     super.onInit();
     await getUserName();
-    await getShoppingCart();
+    await getShoppingCarts();
   }
   
 }

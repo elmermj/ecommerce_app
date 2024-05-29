@@ -17,6 +17,7 @@ class HomeManageItemsScreen extends StatelessWidget {
         color: Colors.transparent
       ),
       child: Column(
+        mainAxisAlignment: controller.productsData.isEmpty? MainAxisAlignment.center: MainAxisAlignment.start,
         children: [
           controller.productsData.isEmpty? 
           Container(
@@ -25,12 +26,11 @@ class HomeManageItemsScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'No Items Available',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Get.theme.colorScheme.onPrimary
                   ),
                 ),
                 TextButton(
@@ -42,7 +42,7 @@ class HomeManageItemsScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Get.theme.colorScheme.onPrimary
+                      color: Get.theme.colorScheme.primary
                     ),
                   ),
                 ),

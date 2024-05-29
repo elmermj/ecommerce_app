@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:ecommerce_app/data/models/product_data_model.dart';
 import 'package:ecommerce_app/domain/repos/product_data_model_repo.dart';
+import 'package:ecommerce_app/presentation/home/home_screen.dart';
+import 'package:ecommerce_app/utils/log.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -15,6 +17,7 @@ class AddStockController extends GetxController {
   final TextEditingController productNameTextController = TextEditingController();
   final TextEditingController productPriceTextController = TextEditingController();
   final TextEditingController productDescTextController = TextEditingController();
+  final TextEditingController productQtyTextController = TextEditingController();
 
   
   Rx<ProductDataModel> productData = ProductDataModel(
@@ -23,6 +26,7 @@ class AddStockController extends GetxController {
                                       productDesc: 'Default',
                                     ).obs;
   Rx<File> productImage = File('').obs;
+  Rx<ValueNotifier<String?>> productNameErrorNotifier = ValueNotifier<String?>(null).obs;
 
   addProductToDatabase() async {
     try {
@@ -37,12 +41,15 @@ class AddStockController extends GetxController {
             snackPosition: SnackPosition.BOTTOM,
             duration: const Duration(seconds: 3),
           ), 
-        (r) => Get.snackbar(
+        (r) {
+          Get.offAll(()=>HomeScreen(isAdmin: true,));
+          return Get.snackbar(
             'Success',
             'Products Has Been Added',
             snackPosition: SnackPosition.BOTTOM,
             duration: const Duration(seconds: 3),
-          )
+          );
+        }
       );
     } catch (e) {
       Get.snackbar(
@@ -67,6 +74,8 @@ class AddStockController extends GetxController {
     final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       productImage.value = File(pickedFile.path);
+      Log.yellow('productImage.value: ${productImage.value.path}');
+      Get.back();
     } else {
       Get.snackbar('Error', 'No image selected from gallery');
     }

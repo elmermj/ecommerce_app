@@ -25,7 +25,11 @@ class RemoteShoppingCartDataSourceImpl implements RemoteShoppingCartDataSource {
   @override
   Future<List<ShoppingCartModel>> getAllShoppingCarts(String userEmail) async {
     var res = await firestore.collection('users').doc(userEmail).collection('shoppingCart').get();
-    return res.docs.map((e) => ShoppingCartModel.fromMap(e.data())).toList();
+    if(res.docs.isEmpty) {
+      return [];
+    }else{
+      return res.docs.map((e) => ShoppingCartModel.fromMap(e.data())).toList();
+    }
   }
   
   @override

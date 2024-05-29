@@ -9,6 +9,8 @@ abstract class ShoppingCartModelRepository {
   Future<Either<Exception, ShoppingCartModel>> getShoppingCart(String userEmail, ShoppingCartModel shoppingCart);
   Future<Either<Exception, void>> insertIntoShoppingCart(String userEmail, ProductDataModel product, ShoppingCartModel shoppingCartModel);
   Future<Either<Exception, List<Map<String,dynamic>>>> checkoutShoppingCart(ShoppingCartModel shoppingCart);
+  Future<Either<Exception, List<ShoppingCartModel>>> getAllShoppingCarts(String userEmail);
+
 }
 
 class ShoppingCartModelRepositoryImpl implements ShoppingCartModelRepository {
@@ -53,6 +55,16 @@ class ShoppingCartModelRepositoryImpl implements ShoppingCartModelRepository {
   Future<Either<Exception, List<Map<String, dynamic>>>> checkoutShoppingCart(ShoppingCartModel shoppingCart) async {
     try {
       final res = await remoteShoppingCartDataSource.checkoutShoppingCart(shoppingCart);
+      return Right(res);
+    } catch (e) {
+      return Left(Exception(e));
+    }
+  }
+  
+  @override
+  Future<Either<Exception, List<ShoppingCartModel>>> getAllShoppingCarts(String userEmail) async {
+    try {
+      final res = await remoteShoppingCartDataSource.getAllShoppingCarts(userEmail);
       return Right(res);
     } catch (e) {
       return Left(Exception(e));

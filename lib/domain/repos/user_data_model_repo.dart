@@ -31,13 +31,14 @@ class UserDataModelRepositoryImpl implements UserDataModelRepository {
       await localDataSource.registerUser(UserDataModel.fromDomain(user));
       return const Right(null);
     } catch (e) {
-      return Left(Exception('Failed to register user'));
+      return Left(Exception('Failed to register user: ${e.toString()}'));
     }
   }
 
   @override
   Future<Either<Exception, UserDataModel>> emailLoginUser(String email, String password) async {
     try {
+      await FirebaseAuth.instance.signOut();
       final auth = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -59,9 +60,12 @@ class UserDataModelRepositoryImpl implements UserDataModelRepository {
   Future<Either<Exception, UserDataModel>> googleLoginUser() async {
     try {
       Log.yellow("GOOGLE LOGIN");
-      googleSignIn.signOut();
+      await googleSignIn.signOut();
       final googleUser = await googleSignIn.signIn().catchError(
-        (error) => Log.red(error.toString()),
+        (error) {
+          Log.red(error.toString());
+          return error;
+        },
       );
       if (googleUser == null) {
         Log.red("Google sign-in aborted");
@@ -102,7 +106,8 @@ class UserDataModelRepositoryImpl implements UserDataModelRepository {
 
     try {
       var res = localDataSource.getUserData(userEmail);
-      if (res == null) {
+      if (res.userEmail.isEmpty) {
+        Log.yellow("Local User Data is empty");
         res = await remoteDataSource.getUserData(userEmail);
         await localDataSource.registerUser(UserDataModel.fromDomain(res));
       }

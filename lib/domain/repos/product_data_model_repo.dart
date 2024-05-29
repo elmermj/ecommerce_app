@@ -7,6 +7,7 @@ import 'package:ecommerce_app/data/models/product_data_model.dart';
 import 'package:ecommerce_app/data/source/local/local_product_data_source.dart';
 import 'package:ecommerce_app/data/source/remote/remote_product_data_source.dart';
 import 'package:ecommerce_app/services/persistence_service.dart';
+import 'package:ecommerce_app/utils/log.dart';
 import 'package:hive/hive.dart';
 
 abstract class ProductDataModelRepository {
@@ -43,10 +44,10 @@ class ProductDataModelRepositoryImpl implements ProductDataModelRepository {
       ProductDataModel? localRes = await localProductDataSource.getProduct(product);
       ProductDataModel remoteRes = await remoteProductDataSource.getProduct(product);
 
-      if (localRes == null) {
-        return Right(localRes);
-      } else {
+      if (localRes.productName.isEmpty) {
         return Right(remoteRes);
+      } else {
+        return Right(localRes);
       }
     } catch (e) {
       return Left(Exception(e));
@@ -73,6 +74,7 @@ class ProductDataModelRepositoryImpl implements ProductDataModelRepository {
       PersistenceService(Hive.box<ImageModel>('images'), Hive.box<ProductDataModel>('productsBox')).syncRemoteDBWithLocalDB();
       return const Right(null);
     } on Exception catch (e) {
+      Log.red(e.toString());
       return Left(Exception(e));
     }
   }

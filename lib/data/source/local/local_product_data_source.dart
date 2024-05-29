@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerce_app/data/models/product_data_model.dart';
 import 'package:ecommerce_app/utils/log.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -14,6 +16,9 @@ abstract class LocalProductDataSource {
 
 class LocalProductDataSourceImpl implements LocalProductDataSource {
   final Box<ProductDataModel> productBox;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final FirebaseStorage storage = FirebaseStorage.instance;
+
 
   LocalProductDataSourceImpl(this.productBox);
   
@@ -33,24 +38,54 @@ class LocalProductDataSourceImpl implements LocalProductDataSource {
   @override
   Future<void> insertProduct(ProductDataModel product, File productImage, String imageUrl) async {
     try {
-      // Get the directory to save the image
-      Directory directory = await getApplicationDocumentsDirectory();
-      String filePath = '${directory.path}/images/$imageUrl.png';
+      // Upload the image to Firebase Storage
+      String fileName = '${product.productName}.png';
+      await storage.ref('productImages/$fileName').putFile(productImage);
 
-      // Save the image file
+      // Get the download URL of the uploaded image
+      String productImageUrl = await storage.ref('productImages/$fileName').getDownloadURL();
+
+      // Ensure the directory exists
+      Directory directory = await getApplicationDocumentsDirectory();
+      String dirPath = '${directory.path}/images';
+      Directory(dirPath).createSync(recursive: true);
+
+      // Create a file path for saving the image locally
+      String filePath = '$dirPath/$fileName';
+
+      // Save the image file locally
       await productImage.copy(filePath);
 
       // Add image URL to the product model
-      product = product.copyWith(productImageUrl: filePath);
+      product = product.copyWith(productImageUrl: productImageUrl);
 
-      // Store the product in Hive
-      await productBox.put(product.productName, product);
+      // Use a Firestore batch operation to save the product details and update the version
+      var batch = firestore.batch();
+      batch.set(
+        firestore.collection('products').doc(product.productName),
+        {
+          'qty': product.qty,
+          'productName': product.productName,
+          'productPrice': product.productPrice,
+          'productDesc': product.productDesc,
+          'productImageUrl': productImageUrl,
+        },
+      );
+      batch.update(
+        firestore.collection('version').doc("db_version"),
+        {
+          'db_version': FieldValue.increment(1),
+        },
+      );
+
+      await batch.commit();
       Log.green('Product inserted successfully!');
     } catch (e) {
       Log.red('Failed to insert product: $e');
     }
-
   }
+
+
   
   @override
   Future<List<ProductDataModel>> getProducts(int pagination) async {

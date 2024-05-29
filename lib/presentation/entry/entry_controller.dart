@@ -1,6 +1,7 @@
 import 'package:ecommerce_app/data/models/user_data_model.dart';
 import 'package:ecommerce_app/domain/repos/user_data_model_repo.dart';
 import 'package:ecommerce_app/main.dart';
+import 'package:ecommerce_app/presentation/home/home_screen.dart';
 import 'package:ecommerce_app/utils/enums/app_state_enum.dart';
 import 'package:ecommerce_app/utils/enums/entry_state_enum.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,6 +18,9 @@ class EntryController extends GetxController{
   TextEditingController emailConfirmEditController = TextEditingController();
   TextEditingController passwordEditController = TextEditingController();
   TextEditingController passwordConfirmController = TextEditingController();
+
+  Rx<ValueNotifier<String?>> emailErrorNotifier = ValueNotifier<String?>(null).obs;
+  Rx<ValueNotifier<String?>> passwordErrorNotifier = ValueNotifier<String?>(null).obs;
 
   EntryController({required this.userDataModelRepository});
 
@@ -78,6 +82,7 @@ class EntryController extends GetxController{
           },
           (_) {
             Get.snackbar('Registration Successful', 'User registered successfully');
+            Get.off(()=>HomeScreen(isAdmin: emailEditController.text.contains('admin'),));
           },
         );
       } else {
@@ -110,6 +115,7 @@ class EntryController extends GetxController{
         },
         (user) {
           Get.snackbar('Login Successful', 'Welcome back, ${user.userName}!');
+          Get.off(()=>HomeScreen(isAdmin: emailEditController.text.contains('admin'),));
         },
       );
     } on FirebaseAuthException catch (e) {

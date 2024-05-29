@@ -28,6 +28,12 @@ class DependencyInjection{
     // External
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
     await Hive.initFlutter();
+    
+    //register adapters
+    Hive.registerAdapter(UserDataModelAdapter());
+    Hive.registerAdapter(ProductDataModelAdapter());
+    Hive.registerAdapter(ShoppingCartModelAdapter());
+    Hive.registerAdapter(ImageModelAdapter());
     final firestore = FirebaseFirestore.instance;
     final userBox = await Hive.openBox<UserDataModel>('userBox');
     final productsBox = await Hive.openBox<ProductDataModel>('productsBox');
@@ -40,7 +46,12 @@ class DependencyInjection{
     Get.put<RemoteShoppingCartDataSource>(RemoteShoppingCartDataSourceImpl(firestore));
     Get.put<LocalUserDataSource>(LocalUserDataSourceImpl(userBox));
     Get.put<LocalProductDataSource>(LocalProductDataSourceImpl(productsBox));
-    Get.put(LocalShoppingCartDataSourceImpl(shoppingCartBox));
+    Get.put<LocalShoppingCartDataSource>(LocalShoppingCartDataSourceImpl(shoppingCartBox));
+
+    Get.put(userBox);
+    Get.put(productsBox);
+    Get.put(shoppingCartBox);
+    Get.put(imageBox);
 
     Get.put(ConnectivityService());
     AccountService accountService = Get.put(AccountService());
@@ -69,11 +80,6 @@ class DependencyInjection{
     );
 
     await requestStoragePermission(accountService);
-
-    //register adapters
-    Hive.registerAdapter(UserDataModelAdapter());
-    Hive.registerAdapter(ProductDataModelAdapter());
-    Hive.registerAdapter(ShoppingCartModelAdapter());
 
   }
 
