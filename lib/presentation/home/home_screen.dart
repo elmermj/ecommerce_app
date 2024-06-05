@@ -2,6 +2,7 @@ import 'package:ecommerce_app/presentation/home/home_controller.dart';
 import 'package:ecommerce_app/presentation/home/subscreen/home_main_screen.dart';
 import 'package:ecommerce_app/presentation/home/subscreen/home_manage_items_screen.dart';
 import 'package:ecommerce_app/presentation/home/subscreen/home_shopping_cart_screen.dart';
+import 'package:ecommerce_app/services/account_service.dart';
 import 'package:ecommerce_app/services/persistence_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,7 +16,8 @@ class HomeScreen extends GetView<HomeController> {
                                       HomeController(
                                         productDataModelRepository: Get.find(),
                                         userDataModelRepository: Get.find(),
-                                        shoppingCartModelRepository: Get.find()
+                                        shoppingCartModelRepository: Get.find(),
+                                        isAdmin: Get.find<AccountService>().isAdmin
                                       )
                                     );
 
@@ -26,11 +28,14 @@ class HomeScreen extends GetView<HomeController> {
     return Scaffold(
       drawer: Drawer(
         //logout 
-        child: ListView(
+        child: Stack(
           children: [
-            ListTile(
-              title: Text('Logout'),
-              onTap: ()=>controller.logout(),
+            Align(
+              alignment: Alignment.center,
+              child: ListTile(
+                title: const Text('Logout'),
+                onTap: ()=>controller.logout(),
+              ),
             ),
           ],
         )
@@ -49,7 +54,10 @@ class HomeScreen extends GetView<HomeController> {
           },
         ),
         actions: [
-          IconButton(onPressed: ()=>persistenceService.syncRemoteDBWithLocalDB, icon: const Icon(Icons.refresh))
+          IconButton(onPressed: () async {
+            // persistenceService.syncRemoteDBWithLocalDB;
+            await controller.getInitialProductsDataFromFirebase(20);
+          }, icon: const Icon(Icons.refresh))
         ],
       ),
       body: Stack(
@@ -79,7 +87,19 @@ class HomeScreen extends GetView<HomeController> {
               default:
                 return HomeShoppingCartScreen();
             }
-          },)
+          },),
+          Obx(()=>
+            controller.isLoading.value
+          ? Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(),
+                Text(controller.loadingText.value)
+              ],
+            )
+          : const SizedBox.shrink()
+          )
         ],
       ),
       bottomNavigationBar: Obx(

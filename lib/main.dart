@@ -149,7 +149,9 @@ class ECommerceApp extends StatelessWidget {
         )
       ).dark(),
       initialRoute: '/',
-      home: isLogin? HomeScreen(isAdmin: isAdmin,) : EntryScreen(),
+      home: isLogin? HomeScreen(
+        isAdmin: isAdmin,
+      ) : EntryScreen(),
     );
   }
 }

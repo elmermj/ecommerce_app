@@ -49,7 +49,7 @@ class UserDataModelRepositoryImpl implements UserDataModelRepository {
         userEmail: email,
         userProfPicUrl: auth.user!.photoURL,
       );
-
+      await localDataSource.registerUser(user);
       return Right(user);
     } catch (e) {
       return Left(Exception('Failed to log in user'));
@@ -89,6 +89,7 @@ class UserDataModelRepositoryImpl implements UserDataModelRepository {
         );
 
         Log.yellow("USER NAME ::: ${domainUser.userName}");
+        Log.yellow("USER EMAIL ::: ${domainUser.userEmail}");
         await remoteDataSource.registerUser(domainUser);
         await localDataSource.registerUser(UserDataModel.fromDomain(domainUser));
 

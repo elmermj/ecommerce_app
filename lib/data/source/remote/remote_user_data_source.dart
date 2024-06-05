@@ -20,22 +20,18 @@ class RemoteUserDataSourceImpl implements RemoteUserDataSource {
 
   @override
   Future<void> registerUser(UserDataModel user) async {
-    // Ensure that the user is authenticated
     User? currentUser = FirebaseAuth.instance.currentUser;
     Log.yellow("Is Authenticated? ${currentUser != null}");
     if (currentUser != null) {
-      // Use the UID as the document ID
-      await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).set({
+      await FirebaseFirestore.instance.collection('users').doc(user.userEmail).set({
         'userName': user.userName,
         'userProfPicUrl': user.userProfPicUrl,
         'userEmail': user.userEmail,
       });
-      await FirebaseFirestore.instance.collection('users').doc(user.userEmail).collection('shoppingCart').doc('initialCart').set({
-        // You can initialize the shopping cart with default values if needed
-      });
+      // await FirebaseFirestore.instance.collection('users').doc(user.userEmail).collection('shoppingCart').doc('initialCart').set({
+      // });
 
     } else {
-      // Handle the case where the user is not authenticated
       throw Exception('User is not authenticated');
     }
   }

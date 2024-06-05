@@ -115,8 +115,8 @@ class EntryController extends GetxController{
         },
         (user) {
           Get.snackbar('Login Successful', 'Welcome back, ${user.userName}!');
-          Get.off(()=>HomeScreen(isAdmin: emailEditController.text.contains('admin'),));
-        },
+          Get.off(()=>HomeScreen(isAdmin: emailEditController.text.contains('admin')));
+        }
       );
     } on FirebaseAuthException catch (e) {
       Get.snackbar('Login Error', e.message ?? 'Login failed');
@@ -138,6 +138,7 @@ class EntryController extends GetxController{
         },
         (user) {
           Get.snackbar('Login Successful', 'Welcome back, ${user.userName}!');
+          Get.off(()=>HomeScreen(isAdmin: emailEditController.text.contains('admin'),));
         },
       );
     } catch (e) {

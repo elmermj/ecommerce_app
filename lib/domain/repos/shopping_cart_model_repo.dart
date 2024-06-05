@@ -6,8 +6,8 @@ import 'package:ecommerce_app/data/source/remote/remote_shopping_cart_source.dar
 
 abstract class ShoppingCartModelRepository {
   Future<Either<Exception, void>> deleteShoppingCart(String userEmail, ShoppingCartModel shoppingCart);
-  Future<Either<Exception, ShoppingCartModel>> getShoppingCart(String userEmail, ShoppingCartModel shoppingCart);
-  Future<Either<Exception, void>> insertIntoShoppingCart(String userEmail, ProductDataModel product, ShoppingCartModel shoppingCartModel);
+  Future<Either<Exception, ShoppingCartModel?>> getShoppingCart(String userEmail);
+  Future<Either<Exception, ShoppingCartModel>> insertIntoShoppingCart(String userEmail, ProductDataModel product, ShoppingCartModel shoppingCartModel);
   Future<Either<Exception, List<Map<String,dynamic>>>> checkoutShoppingCart(ShoppingCartModel shoppingCart);
   Future<Either<Exception, List<ShoppingCartModel>>> getAllShoppingCarts(String userEmail);
 
@@ -31,21 +31,21 @@ class ShoppingCartModelRepositoryImpl implements ShoppingCartModelRepository {
   }
   
   @override
-  Future<Either<Exception, ShoppingCartModel>> getShoppingCart(String userEmail, ShoppingCartModel shoppingCart) async {
+  Future<Either<Exception, ShoppingCartModel?>> getShoppingCart(String userEmail) async {
     try {
-      final res = await remoteShoppingCartDataSource.getShoppingCart(userEmail, shoppingCart);
+      final res = await remoteShoppingCartDataSource.getShoppingCart(userEmail);
       return Right(res);
     } catch (e) {
-      return Left(Exception(e));      
+      return Left(Exception(e));
     }
   }
   
   @override
-  Future<Either<Exception, void>> insertIntoShoppingCart(String userEmail, ProductDataModel product, ShoppingCartModel shoppingCartModel) async {
+  Future<Either<Exception, ShoppingCartModel>> insertIntoShoppingCart(String userEmail, ProductDataModel product, ShoppingCartModel shoppingCartModel) async {
     try {
       await localShoppingCartDataSource.insertIntoShoppingCart(userEmail, product, shoppingCartModel);
-      await remoteShoppingCartDataSource.insertIntoShoppingCart(userEmail, product, shoppingCartModel);
-      return const Right(null);
+      final res = await remoteShoppingCartDataSource.insertIntoShoppingCart(userEmail, product, shoppingCartModel);
+      return Right(res);
     } catch (e) {
       return Left(Exception(e));
     }
@@ -64,7 +64,7 @@ class ShoppingCartModelRepositoryImpl implements ShoppingCartModelRepository {
   @override
   Future<Either<Exception, List<ShoppingCartModel>>> getAllShoppingCarts(String userEmail) async {
     try {
-      final res = await remoteShoppingCartDataSource.getAllShoppingCarts(userEmail);
+      final List<ShoppingCartModel> res = await remoteShoppingCartDataSource.getAllShoppingCarts(userEmail);
       return Right(res);
     } catch (e) {
       return Left(Exception(e));

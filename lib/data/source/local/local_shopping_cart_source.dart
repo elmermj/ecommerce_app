@@ -32,14 +32,14 @@ class LocalShoppingCartDataSourceImpl implements LocalShoppingCartDataSource {
   
   @override
   Future<void> insertIntoShoppingCart(String userEmail, ProductDataModel product, ShoppingCartModel shoppingCart) async {
-    List<ProductDataModel> products = shoppingCart.products;
-    products.add(product);
-    double subTotal = shoppingCart.subTotal + product.productPrice;
-    double total = shoppingCart.total + (product.productPrice * 1.11);
-    shoppingCart = ShoppingCartModel(products: products, subTotal: subTotal, total: total, shoppingCartId: shoppingCart.shoppingCartId);
-    await shoppingCartBox.put(
-      "${userEmail}_${shoppingCart.shoppingCartId}",
-      shoppingCart
-    );
+    // List<ProductDataModel>? products = shoppingCart.products;
+    // final existingProductIndex = shoppingCart.products!.indexWhere((p) => p.productName == product.productName);
+    // double subTotal = shoppingCart.subTotal! + product.productPrice;
+    // double total = shoppingCart.total! + (product.productPrice * 1.11);
+    // shoppingCart = ShoppingCartModel(products: products, subTotal: subTotal, total: total, shoppingCartId: shoppingCart.shoppingCartId);
+    // await shoppingCartBox.put(
+    //   "${userEmail}_${shoppingCart.shoppingCartId}",
+    //   shoppingCart
+    // );
   }
 }

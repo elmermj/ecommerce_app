@@ -23,13 +23,11 @@ class ProductDataModel {
     this.productImageUrl,
   });
 
-  //fromMap
-
   factory ProductDataModel.fromMap(Map<String, dynamic> map) {
     return ProductDataModel(
       qty: map['qty'],
       productName: map['productName'],
-      productPrice: map['productPrice'],
+      productPrice: double.parse(map['productPrice'].toString()),
       productDesc: map['productDesc'],
       productImageUrl: map['productImageUrl'],
     );
@@ -44,5 +42,4 @@ class ProductDataModel {
       'productImageUrl': productImageUrl,
     };
   }
-  
 }

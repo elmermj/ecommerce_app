@@ -25,24 +25,31 @@ class AddStockController extends GetxController {
                                       productPrice: 0,
                                       productDesc: 'Default',
                                     ).obs;
+
   Rx<File> productImage = File('').obs;
   Rx<ValueNotifier<String?>> productNameErrorNotifier = ValueNotifier<String?>(null).obs;
+  RxBool isLoading = false.obs;
 
   addProductToDatabase() async {
+    isLoading.value = true;
     try {
       final res = await productDataModelRepository.insertProduct(
         productData.value,
         productImage.value
       );
       res.fold(
-        (exception) => Get.snackbar(
+        (exception) {
+          isLoading.value = false;
+          return Get.snackbar(
             'Error',
             exception.toString(),
             snackPosition: SnackPosition.BOTTOM,
             duration: const Duration(seconds: 3),
-          ), 
+          );
+        }, 
         (r) {
           Get.offAll(()=>HomeScreen(isAdmin: true,));
+          isLoading.value = false;
           return Get.snackbar(
             'Success',
             'Products Has Been Added',
@@ -52,6 +59,7 @@ class AddStockController extends GetxController {
         }
       );
     } catch (e) {
+      isLoading.value = false;
       Get.snackbar(
         'Error',
         e.toString(),

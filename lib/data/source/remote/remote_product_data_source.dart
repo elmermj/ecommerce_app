@@ -99,7 +99,7 @@ class RemoteProductDataSourceImpl implements RemoteProductDataSource {
     var batch = firestore.batch();
 
     await file.writeAsString(jsonData);
-    await storage.ref('productIndex').child(product.productName).putFile(file);
+    await storage.ref('productIndex').child("${product.productName}.json").putFile(file);
 
     String productImageUrl = await storage.ref('productImages').child(product.productName).getDownloadURL();
     batch.set(

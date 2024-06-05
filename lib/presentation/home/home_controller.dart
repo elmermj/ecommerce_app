@@ -7,20 +7,29 @@ import 'package:ecommerce_app/domain/repos/user_data_model_repo.dart';
 import 'package:ecommerce_app/presentation/entry/entry_screen.dart';
 import 'package:ecommerce_app/utils/log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 
 class HomeController extends GetxController {
   final UserDataModelRepository userDataModelRepository;
   final ProductDataModelRepository productDataModelRepository;
   final ShoppingCartModelRepository shoppingCartModelRepository;
-  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  final bool isAdmin;
   HomeController({
     required this.userDataModelRepository,
     required this.productDataModelRepository,
-    required this.shoppingCartModelRepository
+    required this.shoppingCartModelRepository,
+    required this.isAdmin,
   });
 
+  
+  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+
   RxInt index = 0.obs;
+
+  RxList<RxBool> isAddActiveList = <RxBool>[].obs;
 
   Rx<UserDataModel> userData = UserDataModel(userEmail: 'default', userName: 'default').obs;
 
@@ -30,10 +39,16 @@ class HomeController extends GetxController {
 
   RxList<Map<String,dynamic>> checkoutErrors = <Map<String,dynamic>>[].obs;
 
-  getShoppingCarts() async {
+  RxBool isLoading = false.obs;
+
+  TextEditingController itemManageFieldController = TextEditingController();
+
+  RxString loadingText = ''.obs;
+
+  getShoppingCart() async {
     try{
 
-      await shoppingCartModelRepository.getAllShoppingCarts(FirebaseAuth.instance.currentUser!.email!).then((res) {
+      await shoppingCartModelRepository.getShoppingCart(FirebaseAuth.instance.currentUser!.email!).then((res) {
         res.fold(
           (exception) => Get.snackbar(
             'Error',
@@ -42,14 +57,16 @@ class HomeController extends GetxController {
             duration: const Duration(seconds: 3),
           ),
           (r) {
-            var lastCart = r.last;
-            for (var index in lastCart.products){
-              checkoutErrors.add({
-                index.productName: true,
-                'stockLeft' : index.qty
-              });
+            if(r != null){
+              for (var index in r.products!){
+                checkoutErrors.add({
+                  index.productName: true,
+                  'stockLeft' : index.qty
+                });
+              }
+              Log.yellow('${r.products!.length} products inside');
+              return shoppingCart.value = r;
             }
-            return shoppingCart.value = lastCart;
           }
         );
       });
@@ -65,6 +82,20 @@ class HomeController extends GetxController {
 
   addProductToCart(ProductDataModel product) async {
     Log.yellow('addProductToCart');
+    final existingProductIndex = shoppingCart.value.products!.indexWhere((p) => p.productName == product.productName);
+
+    shoppingCart.update((cart) {
+      if (existingProductIndex != -1) {
+        cart!.products![existingProductIndex].qty += product.qty;
+      } else {
+        cart!.products!.add(product);
+      }
+      cart.subTotal = cart.products!.fold(0, (sum, item) => sum! + item.productPrice * item.qty);
+      cart.total = cart.subTotal;
+    });
+
+    Log.yellow('${shoppingCart.value.products!.length} products inside');
+    
     await shoppingCartModelRepository.insertIntoShoppingCart(FirebaseAuth.instance.currentUser!.email!, product, shoppingCart.value).then(
       (res) => res.fold(
         (exception) => Get.snackbar(
@@ -83,11 +114,14 @@ class HomeController extends GetxController {
     );
   }
 
+
   getInitialProductsDataFromFirebase(int? pagination) async {
+    isLoading.value = true;
     try{
       final res = await productDataModelRepository.getProducts(pagination ?? 20);
       res.fold(
         (exception){
+          isLoading.value = false;
           Get.snackbar(
             'Error',
             exception.toString(),
@@ -97,6 +131,8 @@ class HomeController extends GetxController {
         },
         (products){
           productsData.value = products;
+          isAddActiveList = List<RxBool>.generate(productsData.length, (_) => false.obs).obs;
+          isLoading.value = false;
           Get.snackbar(
             'Success',
             'Products Data Fetched',
@@ -106,6 +142,7 @@ class HomeController extends GetxController {
         }
       );
     }catch (e){
+      isLoading.value = false;
       Get.snackbar(
         'Error',
         e.toString(),
@@ -143,6 +180,8 @@ class HomeController extends GetxController {
   }
 
   checkout() async {
+    loadingText.value = 'Checking Out...';
+    isLoading.value = true;
     try {
       final res = await shoppingCartModelRepository.checkoutShoppingCart(shoppingCart.value);
       res.fold(
@@ -174,23 +213,31 @@ class HomeController extends GetxController {
           }
         }
       );
+      isLoading.value = false;
     } catch (e) {
       Get.snackbar(
         'Error',
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 3),);
+        duration: const Duration(seconds: 3),
+      );
+      isLoading.value = false;
     }
   }
 
-  clearShoppingCart(){
-
+  clearShoppingCart() {
+    shoppingCart.update((cart) {
+      cart!.products!.clear();
+      cart.subTotal = 0;
+      cart.total = 0;
+    });
   }
 
   //logout
   logout() async {
     try{
       await firebaseAuth.signOut();
+      await Hive.box<UserDataModel>('userBox').delete(userData.value.userEmail);
       Get.offAll(()=>EntryScreen());
     }catch (e){
       Get.snackbar(
@@ -205,7 +252,23 @@ class HomeController extends GetxController {
   Future<void> onInit() async {
     super.onInit();
     await getUserName();
-    await getShoppingCarts();
+    await getInitialProductsDataFromFirebase(20);
+    if(!isAdmin){
+      await getShoppingCart();
+    }
   }
   
+  String formatToRupiah(double price) {
+    final NumberFormat currencyFormatter = NumberFormat.currency(
+      locale: 'id_ID', 
+      symbol: 'Rp ', 
+      decimalDigits: 2
+    );
+    return currencyFormatter.format(price);
+  }
+
+  void toggleAddActive(int index) {
+    isAddActiveList[index].value = !isAddActiveList[index].value;
+  }
+
 }

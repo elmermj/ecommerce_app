@@ -7,24 +7,26 @@ part 'shopping_cart_model.g.dart';
 @HiveType(typeId: 2)
 class ShoppingCartModel {
   @HiveField(0)
-  List<ProductDataModel> products;
+  List<ProductDataModel>? products;
   @HiveField(1)
-  double subTotal;
+  double? subTotal;
   @HiveField(2)
-  double total;
+  double? total;
   @HiveField(3)
-  String shoppingCartId;
+  String? shoppingCartId;
 
   ShoppingCartModel({
     required this.products,
     required this.subTotal,
     required this.total,
-    required this.shoppingCartId
+    required this.shoppingCartId,
   });
 
   factory ShoppingCartModel.fromMap(Map<String, dynamic> map) {
     return ShoppingCartModel(
-      products: map['products'],
+      products: (map['products'] as List<dynamic>?)
+          ?.map((product) => ProductDataModel.fromMap(product))
+          .toList(),
       subTotal: map['subTotal'],
       total: map['total'],
       shoppingCartId: map['shoppingCartId'],
@@ -33,11 +35,10 @@ class ShoppingCartModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'products': products,
+      'products': products?.map((product) => product.toMap()).toList(),
       'subTotal': subTotal,
       'total': total,
       'shoppingCartId': shoppingCartId,
     };
   }
-  
 }
