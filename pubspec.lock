@@ -736,6 +736,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  new_dcdg:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: main
+      resolved-ref: "1a3ee935d86b69000e75fd22df38a82c7c1fca64"
+      url: "https://github.com/elmermj/new_dcdg.git"
+    source: git
+    version: "1.0.0"
   nm:
     dependency: transitive
     description:

@@ -1,0 +1,685 @@
+@startuml
+set namespaceSeparator ::
+
+class "ecommerce_app::data::models::image_model.dart::ImageModel" {
+  +String url
+  +String localPath
+  +Map<String, dynamic> toJson()
+}
+
+class "ecommerce_app::data::models::image_model.dart::ImageModelAdapter" {
+  +int typeId
+  +int hashCode
+  +ImageModel read()
+  +void write()
+  +bool ==()
+}
+
+"hive::hive.dart::TypeAdapter" <|-- "ecommerce_app::data::models::image_model.dart::ImageModelAdapter"
+
+class "ecommerce_app::data::models::product_data_model.dart::ProductDataModel" {
+  +int qty
+  +String productName
+  +double productPrice
+  +String productDesc
+  +String? productImageUrl
+  +Map<String, dynamic> toMap()
+}
+
+class "ecommerce_app::data::models::product_data_model.dart::ProductDataModelAdapter" {
+  +int typeId
+  +int hashCode
+  +ProductDataModel read()
+  +void write()
+  +bool ==()
+}
+
+"hive::hive.dart::TypeAdapter" <|-- "ecommerce_app::data::models::product_data_model.dart::ProductDataModelAdapter"
+
+class "ecommerce_app::data::models::shopping_cart_model.dart::ShoppingCartModel" {
+  +List<ProductDataModel>? products
+  +double? subTotal
+  +double? total
+  +String? shoppingCartId
+  +Map<String, dynamic> toMap()
+}
+
+class "ecommerce_app::data::models::shopping_cart_model.dart::ShoppingCartModelAdapter" {
+  +int typeId
+  +int hashCode
+  +ShoppingCartModel read()
+  +void write()
+  +bool ==()
+}
+
+"hive::hive.dart::TypeAdapter" <|-- "ecommerce_app::data::models::shopping_cart_model.dart::ShoppingCartModelAdapter"
+
+class "ecommerce_app::data::models::user_data_model.dart::UserDataModel" {
+  +String userName
+  +String? userProfPicUrl
+  +String userEmail
+  +UserDataModel toDomain()
+}
+
+class "ecommerce_app::data::models::user_data_model.dart::UserDataModelAdapter" {
+  +int typeId
+  +int hashCode
+  +UserDataModel read()
+  +void write()
+  +bool ==()
+}
+
+"hive::hive.dart::TypeAdapter" <|-- "ecommerce_app::data::models::user_data_model.dart::UserDataModelAdapter"
+
+abstract class "ecommerce_app::data::source::local::local_product_data_source.dart::LocalProductDataSource" {
+  +dynamic insertProduct()
+  +dynamic deleteProduct()
+  +dynamic getProduct()
+  +dynamic getProducts()
+}
+
+class "ecommerce_app::data::source::local::local_product_data_source.dart::LocalProductDataSourceImpl" {
+  +Box<ProductDataModel> productBox
+  +FirebaseFirestore firestore
+  +FirebaseStorage storage
+  +dynamic deleteProduct()
+  +dynamic getProduct()
+  +dynamic insertProduct()
+  +dynamic getProducts()
+}
+
+"ecommerce_app::data::source::local::local_product_data_source.dart::LocalProductDataSourceImpl" o-- "hive::hive.dart::Box<ProductDataModel>"
+"ecommerce_app::data::source::local::local_product_data_source.dart::LocalProductDataSourceImpl" o-- "cloud_firestore::cloud_firestore.dart::FirebaseFirestore"
+"ecommerce_app::data::source::local::local_product_data_source.dart::LocalProductDataSourceImpl" o-- "firebase_storage::firebase_storage.dart::FirebaseStorage"
+"ecommerce_app::data::source::local::local_product_data_source.dart::LocalProductDataSource" <|-- "ecommerce_app::data::source::local::local_product_data_source.dart::LocalProductDataSourceImpl"
+
+abstract class "ecommerce_app::data::source::local::local_shopping_cart_source.dart::LocalShoppingCartDataSource" {
+  +dynamic deleteShoppingCart()
+  +ShoppingCartModel getShoppingCart()
+  +List<ShoppingCartModel> getAllShoppingCarts()
+  +dynamic insertIntoShoppingCart()
+}
+
+class "ecommerce_app::data::source::local::local_shopping_cart_source.dart::LocalShoppingCartDataSourceImpl" {
+  +Box<ShoppingCartModel> shoppingCartBox
+  +dynamic deleteShoppingCart()
+  +ShoppingCartModel getShoppingCart()
+  +List<ShoppingCartModel> getAllShoppingCarts()
+  +dynamic insertIntoShoppingCart()
+}
+
+"ecommerce_app::data::source::local::local_shopping_cart_source.dart::LocalShoppingCartDataSourceImpl" o-- "hive::hive.dart::Box<ShoppingCartModel>"
+"ecommerce_app::data::source::local::local_shopping_cart_source.dart::LocalShoppingCartDataSource" <|-- "ecommerce_app::data::source::local::local_shopping_cart_source.dart::LocalShoppingCartDataSourceImpl"
+
+abstract class "ecommerce_app::data::source::local::local_user_data_source.dart::LocalUserDataSource" {
+  +dynamic registerUser()
+  +UserDataModel getUserData()
+}
+
+class "ecommerce_app::data::source::local::local_user_data_source.dart::LocalUserDataSourceImpl" {
+  +Box<UserDataModel> userBox
+  +dynamic registerUser()
+  +UserDataModel getUserData()
+}
+
+"ecommerce_app::data::source::local::local_user_data_source.dart::LocalUserDataSourceImpl" o-- "hive::hive.dart::Box<UserDataModel>"
+"ecommerce_app::data::source::local::local_user_data_source.dart::LocalUserDataSource" <|-- "ecommerce_app::data::source::local::local_user_data_source.dart::LocalUserDataSourceImpl"
+
+abstract class "ecommerce_app::data::source::remote::remote_product_data_source.dart::RemoteProductDataSource" {
+  +dynamic getProduct()
+  +dynamic getProducts()
+  +dynamic updateProduct()
+  +dynamic insertProduct()
+  +dynamic deleteProduct()
+}
+
+class "ecommerce_app::data::source::remote::remote_product_data_source.dart::RemoteProductDataSourceImpl" {
+  +FirebaseFirestore firestore
+  +FirebaseStorage storage
+  +dynamic getProduct()
+  +dynamic updateProduct()
+  +dynamic insertProduct()
+  +dynamic deleteProduct()
+  +dynamic getProducts()
+}
+
+"ecommerce_app::data::source::remote::remote_product_data_source.dart::RemoteProductDataSourceImpl" o-- "cloud_firestore::cloud_firestore.dart::FirebaseFirestore"
+"ecommerce_app::data::source::remote::remote_product_data_source.dart::RemoteProductDataSourceImpl" o-- "firebase_storage::firebase_storage.dart::FirebaseStorage"
+"ecommerce_app::data::source::remote::remote_product_data_source.dart::RemoteProductDataSource" <|-- "ecommerce_app::data::source::remote::remote_product_data_source.dart::RemoteProductDataSourceImpl"
+
+abstract class "ecommerce_app::data::source::remote::remote_shopping_cart_source.dart::RemoteShoppingCartDataSource" {
+  +dynamic deleteShoppingCart()
+  +dynamic getShoppingCart()
+  +dynamic getAllShoppingCarts()
+  +dynamic insertIntoShoppingCart()
+  +dynamic checkoutShoppingCart()
+  +dynamic createShoppingCart()
+}
+
+class "ecommerce_app::data::source::remote::remote_shopping_cart_source.dart::RemoteShoppingCartDataSourceImpl" {
+  +FirebaseFirestore firestore
+  +dynamic deleteShoppingCart()
+  +dynamic getAllShoppingCarts()
+  +dynamic getShoppingCart()
+  +dynamic insertIntoShoppingCart()
+  +dynamic checkoutShoppingCart()
+  +dynamic createShoppingCart()
+}
+
+"ecommerce_app::data::source::remote::remote_shopping_cart_source.dart::RemoteShoppingCartDataSourceImpl" o-- "cloud_firestore::cloud_firestore.dart::FirebaseFirestore"
+"ecommerce_app::data::source::remote::remote_shopping_cart_source.dart::RemoteShoppingCartDataSource" <|-- "ecommerce_app::data::source::remote::remote_shopping_cart_source.dart::RemoteShoppingCartDataSourceImpl"
+
+abstract class "ecommerce_app::data::source::remote::remote_user_data_source.dart::RemoteUserDataSource" {
+  +dynamic registerUser()
+  +dynamic updateUser()
+  +dynamic createUser()
+  +dynamic deleteUser()
+  +dynamic getUserData()
+}
+
+class "ecommerce_app::data::source::remote::remote_user_data_source.dart::RemoteUserDataSourceImpl" {
+  +FirebaseFirestore firestore
+  +dynamic registerUser()
+  +dynamic updateUser()
+  +dynamic createUser()
+  +dynamic deleteUser()
+  +dynamic getUserData()
+}
+
+"ecommerce_app::data::source::remote::remote_user_data_source.dart::RemoteUserDataSourceImpl" o-- "cloud_firestore::cloud_firestore.dart::FirebaseFirestore"
+"ecommerce_app::data::source::remote::remote_user_data_source.dart::RemoteUserDataSource" <|-- "ecommerce_app::data::source::remote::remote_user_data_source.dart::RemoteUserDataSourceImpl"
+
+class "ecommerce_app::dependency_injector::app_initialization.dart::DependencyInjection" {
+  {static} +dynamic init()
+  {static} +dynamic requestStoragePermission()
+}
+
+abstract class "ecommerce_app::domain::repos::product_data_model_repo.dart::ProductDataModelRepository" {
+  +dynamic insertProduct()
+  +dynamic deleteProduct()
+  +dynamic getProduct()
+  +dynamic getProducts()
+}
+
+class "ecommerce_app::domain::repos::product_data_model_repo.dart::ProductDataModelRepositoryImpl" {
+  +LocalProductDataSource localProductDataSource
+  +RemoteProductDataSource remoteProductDataSource
+  +FirebaseFirestore firestore
+  +dynamic deleteProduct()
+  +dynamic getProduct()
+  +dynamic getProducts()
+  +dynamic insertProduct()
+}
+
+"ecommerce_app::domain::repos::product_data_model_repo.dart::ProductDataModelRepositoryImpl" o-- "ecommerce_app::data::source::local::local_product_data_source.dart::LocalProductDataSource"
+"ecommerce_app::domain::repos::product_data_model_repo.dart::ProductDataModelRepositoryImpl" o-- "ecommerce_app::data::source::remote::remote_product_data_source.dart::RemoteProductDataSource"
+"ecommerce_app::domain::repos::product_data_model_repo.dart::ProductDataModelRepositoryImpl" o-- "cloud_firestore::cloud_firestore.dart::FirebaseFirestore"
+"ecommerce_app::domain::repos::product_data_model_repo.dart::ProductDataModelRepository" <|-- "ecommerce_app::domain::repos::product_data_model_repo.dart::ProductDataModelRepositoryImpl"
+
+abstract class "ecommerce_app::domain::repos::shopping_cart_model_repo.dart::ShoppingCartModelRepository" {
+  +dynamic deleteShoppingCart()
+  +dynamic getShoppingCart()
+  +dynamic insertIntoShoppingCart()
+  +dynamic checkoutShoppingCart()
+  +dynamic getAllShoppingCarts()
+}
+
+class "ecommerce_app::domain::repos::shopping_cart_model_repo.dart::ShoppingCartModelRepositoryImpl" {
+  +RemoteShoppingCartDataSource remoteShoppingCartDataSource
+  +LocalShoppingCartDataSource localShoppingCartDataSource
+  +dynamic deleteShoppingCart()
+  +dynamic getShoppingCart()
+  +dynamic insertIntoShoppingCart()
+  +dynamic checkoutShoppingCart()
+  +dynamic getAllShoppingCarts()
+}
+
+"ecommerce_app::domain::repos::shopping_cart_model_repo.dart::ShoppingCartModelRepositoryImpl" o-- "ecommerce_app::data::source::remote::remote_shopping_cart_source.dart::RemoteShoppingCartDataSource"
+"ecommerce_app::domain::repos::shopping_cart_model_repo.dart::ShoppingCartModelRepositoryImpl" o-- "ecommerce_app::data::source::local::local_shopping_cart_source.dart::LocalShoppingCartDataSource"
+"ecommerce_app::domain::repos::shopping_cart_model_repo.dart::ShoppingCartModelRepository" <|-- "ecommerce_app::domain::repos::shopping_cart_model_repo.dart::ShoppingCartModelRepositoryImpl"
+
+abstract class "ecommerce_app::domain::repos::user_data_model_repo.dart::UserDataModelRepository" {
+  +dynamic registerUser()
+  +dynamic emailLoginUser()
+  +dynamic googleLoginUser()
+  +dynamic getUserData()
+}
+
+class "ecommerce_app::domain::repos::user_data_model_repo.dart::UserDataModelRepositoryImpl" {
+  +RemoteUserDataSource remoteDataSource
+  +LocalUserDataSource localDataSource
+  +GoogleSignIn googleSignIn
+  +dynamic registerUser()
+  +dynamic emailLoginUser()
+  +dynamic googleLoginUser()
+  +dynamic getUserData()
+}
+
+"ecommerce_app::domain::repos::user_data_model_repo.dart::UserDataModelRepositoryImpl" o-- "ecommerce_app::data::source::remote::remote_user_data_source.dart::RemoteUserDataSource"
+"ecommerce_app::domain::repos::user_data_model_repo.dart::UserDataModelRepositoryImpl" o-- "ecommerce_app::data::source::local::local_user_data_source.dart::LocalUserDataSource"
+"ecommerce_app::domain::repos::user_data_model_repo.dart::UserDataModelRepositoryImpl" o-- "google_sign_in::google_sign_in.dart::GoogleSignIn"
+"ecommerce_app::domain::repos::user_data_model_repo.dart::UserDataModelRepository" <|-- "ecommerce_app::domain::repos::user_data_model_repo.dart::UserDataModelRepositoryImpl"
+
+abstract class "ecommerce_app::execute.dart::Execute" {
+  +String instance
+  +dynamic execute()
+  +dynamic executeWithCatchError()
+  +dynamic catchError()
+}
+
+class "ecommerce_app::firebase_options.dart::DefaultFirebaseOptions" {
+  {static} +FirebaseOptions web
+  {static} +FirebaseOptions android
+  {static} +FirebaseOptions ios
+  {static} +FirebaseOptions macos
+  {static} +FirebaseOptions windows
+  {static} +FirebaseOptions currentPlatform
+}
+
+"ecommerce_app::firebase_options.dart::DefaultFirebaseOptions" o-- "firebase_core_platform_interface::firebase_core_platform_interface.dart::FirebaseOptions"
+
+class "ecommerce_app::main.dart::ECommerceApp" {
+  +bool isLogin
+  +bool isAdmin
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "ecommerce_app::main.dart::ECommerceApp"
+
+class "ecommerce_app::presentation::add_stock::add_stock_controller.dart::AddStockController" {
+  +ProductDataModelRepository productDataModelRepository
+  +ImagePicker imagePicker
+  +TextEditingController productNameTextController
+  +TextEditingController productPriceTextController
+  +TextEditingController productDescTextController
+  +TextEditingController productQtyTextController
+  +Rx<ProductDataModel> productData
+  +Rx<File> productImage
+  +Rx<ValueNotifier<String?>> productNameErrorNotifier
+  +RxBool isLoading
+  +dynamic addProductToDatabase()
+  +dynamic uploadImageFromCamera()
+  +dynamic uploadImageFromGallery()
+}
+
+"ecommerce_app::presentation::add_stock::add_stock_controller.dart::AddStockController" o-- "ecommerce_app::domain::repos::product_data_model_repo.dart::ProductDataModelRepository"
+"ecommerce_app::presentation::add_stock::add_stock_controller.dart::AddStockController" o-- "image_picker::image_picker.dart::ImagePicker"
+"ecommerce_app::presentation::add_stock::add_stock_controller.dart::AddStockController" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"ecommerce_app::presentation::add_stock::add_stock_controller.dart::AddStockController" o-- "get::get_rx::src::rx_types::rx_types.dart::Rx<ProductDataModel>"
+"ecommerce_app::presentation::add_stock::add_stock_controller.dart::AddStockController" o-- "get::get_rx::src::rx_types::rx_types.dart::Rx<File>"
+"ecommerce_app::presentation::add_stock::add_stock_controller.dart::AddStockController" o-- "get::get_rx::src::rx_types::rx_types.dart::Rx<ValueNotifier<String>>"
+"ecommerce_app::presentation::add_stock::add_stock_controller.dart::AddStockController" o-- "get::get_rx::src::rx_types::rx_types.dart::RxBool"
+"get::get_state_manager::src::simple::get_controllers.dart::GetxController" <|-- "ecommerce_app::presentation::add_stock::add_stock_controller.dart::AddStockController"
+
+class "ecommerce_app::presentation::add_stock::add_stock_screen.dart::HomeAddNewStockScreen" {
+  +AddStockController controller
+  +Widget build()
+}
+
+"ecommerce_app::presentation::add_stock::add_stock_screen.dart::HomeAddNewStockScreen" o-- "ecommerce_app::presentation::add_stock::add_stock_controller.dart::AddStockController"
+"get::get_state_manager::src::simple::get_view.dart::GetView" <|-- "ecommerce_app::presentation::add_stock::add_stock_screen.dart::HomeAddNewStockScreen"
+
+class "ecommerce_app::presentation::checkout::checkout_controller.dart::CheckoutController" {
+}
+
+"get::get_state_manager::src::simple::get_controllers.dart::GetxController" <|-- "ecommerce_app::presentation::checkout::checkout_controller.dart::CheckoutController"
+
+class "ecommerce_app::presentation::checkout::checkout_screen.dart::CheckoutScreen" {
+  +Widget build()
+}
+
+"get::get_state_manager::src::simple::get_view.dart::GetView" <|-- "ecommerce_app::presentation::checkout::checkout_screen.dart::CheckoutScreen"
+
+class "ecommerce_app::presentation::entry::entry_controller.dart::EntryController" {
+  +UserDataModelRepository userDataModelRepository
+  +Rx<EntryState> state
+  +TextEditingController nameEditController
+  +TextEditingController emailEditController
+  +TextEditingController emailConfirmEditController
+  +TextEditingController passwordEditController
+  +TextEditingController passwordConfirmController
+  +Rx<ValueNotifier<String?>> emailErrorNotifier
+  +Rx<ValueNotifier<String?>> passwordErrorNotifier
+  +bool registrationValidation()
+  +dynamic commitEmailRegistration()
+  +dynamic commitEmailLogin()
+  +dynamic commitGoogleLogin()
+}
+
+"ecommerce_app::presentation::entry::entry_controller.dart::EntryController" o-- "ecommerce_app::domain::repos::user_data_model_repo.dart::UserDataModelRepository"
+"ecommerce_app::presentation::entry::entry_controller.dart::EntryController" o-- "get::get_rx::src::rx_types::rx_types.dart::Rx<EntryState>"
+"ecommerce_app::presentation::entry::entry_controller.dart::EntryController" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"ecommerce_app::presentation::entry::entry_controller.dart::EntryController" o-- "get::get_rx::src::rx_types::rx_types.dart::Rx<ValueNotifier<String>>"
+"get::get_state_manager::src::simple::get_controllers.dart::GetxController" <|-- "ecommerce_app::presentation::entry::entry_controller.dart::EntryController"
+
+class "ecommerce_app::presentation::entry::entry_screen.dart::EntryScreen" {
+  +EntryController controller
+  +Widget build()
+  +Widget switchState()
+}
+
+"ecommerce_app::presentation::entry::entry_screen.dart::EntryScreen" o-- "ecommerce_app::presentation::entry::entry_controller.dart::EntryController"
+"get::get_state_manager::src::simple::get_view.dart::GetView" <|-- "ecommerce_app::presentation::entry::entry_screen.dart::EntryScreen"
+
+class "ecommerce_app::presentation::home::home_controller.dart::HomeController" {
+  +UserDataModelRepository userDataModelRepository
+  +ProductDataModelRepository productDataModelRepository
+  +ShoppingCartModelRepository shoppingCartModelRepository
+  +bool isAdmin
+  +FirebaseAuth firebaseAuth
+  +RxInt index
+  +RxList<RxBool> isAddActiveList
+  +Rx<UserDataModel> userData
+  +RxList<ProductDataModel> productsData
+  +Rx<ShoppingCartModel> shoppingCart
+  +RxList<Map<String, dynamic>> checkoutErrors
+  +RxBool isLoading
+  +TextEditingController itemManageFieldController
+  +RxString loadingText
+  +dynamic getShoppingCart()
+  +dynamic addProductToCart()
+  +dynamic getInitialProductsDataFromFirebase()
+  +dynamic getUserName()
+  +dynamic checkout()
+  +dynamic clearShoppingCart()
+  +dynamic logout()
+  +dynamic onInit()
+  +String formatToRupiah()
+  +void toggleAddActive()
+}
+
+"ecommerce_app::presentation::home::home_controller.dart::HomeController" o-- "ecommerce_app::domain::repos::user_data_model_repo.dart::UserDataModelRepository"
+"ecommerce_app::presentation::home::home_controller.dart::HomeController" o-- "ecommerce_app::domain::repos::product_data_model_repo.dart::ProductDataModelRepository"
+"ecommerce_app::presentation::home::home_controller.dart::HomeController" o-- "ecommerce_app::domain::repos::shopping_cart_model_repo.dart::ShoppingCartModelRepository"
+"ecommerce_app::presentation::home::home_controller.dart::HomeController" o-- "firebase_auth::firebase_auth.dart::FirebaseAuth"
+"ecommerce_app::presentation::home::home_controller.dart::HomeController" o-- "get::get_rx::src::rx_types::rx_types.dart::RxInt"
+"ecommerce_app::presentation::home::home_controller.dart::HomeController" o-- "get::get_rx::src::rx_types::rx_types.dart::RxList<RxBool>"
+"ecommerce_app::presentation::home::home_controller.dart::HomeController" o-- "get::get_rx::src::rx_types::rx_types.dart::Rx<UserDataModel>"
+"ecommerce_app::presentation::home::home_controller.dart::HomeController" o-- "get::get_rx::src::rx_types::rx_types.dart::RxList<ProductDataModel>"
+"ecommerce_app::presentation::home::home_controller.dart::HomeController" o-- "get::get_rx::src::rx_types::rx_types.dart::Rx<ShoppingCartModel>"
+"ecommerce_app::presentation::home::home_controller.dart::HomeController" o-- "get::get_rx::src::rx_types::rx_types.dart::RxList<Map<String, dynamic>>"
+"ecommerce_app::presentation::home::home_controller.dart::HomeController" o-- "get::get_rx::src::rx_types::rx_types.dart::RxBool"
+"ecommerce_app::presentation::home::home_controller.dart::HomeController" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"ecommerce_app::presentation::home::home_controller.dart::HomeController" o-- "get::get_rx::src::rx_types::rx_types.dart::RxString"
+"get::get_state_manager::src::simple::get_controllers.dart::GetxController" <|-- "ecommerce_app::presentation::home::home_controller.dart::HomeController"
+
+class "ecommerce_app::presentation::home::home_screen.dart::HomeScreen" {
+  +bool isAdmin
+  +HomeController controller
+  +PersistenceService persistenceService
+  +Widget build()
+}
+
+"ecommerce_app::presentation::home::home_screen.dart::HomeScreen" o-- "ecommerce_app::presentation::home::home_controller.dart::HomeController"
+"ecommerce_app::presentation::home::home_screen.dart::HomeScreen" o-- "ecommerce_app::services::persistence_service.dart::PersistenceService"
+"get::get_state_manager::src::simple::get_view.dart::GetView" <|-- "ecommerce_app::presentation::home::home_screen.dart::HomeScreen"
+
+class "ecommerce_app::presentation::home::subscreen::home_main_screen.dart::HomeMainScreen" {
+  +HomeController controller
+  +Widget build()
+}
+
+"ecommerce_app::presentation::home::subscreen::home_main_screen.dart::HomeMainScreen" o-- "ecommerce_app::presentation::home::home_controller.dart::HomeController"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "ecommerce_app::presentation::home::subscreen::home_main_screen.dart::HomeMainScreen"
+
+class "ecommerce_app::presentation::home::subscreen::home_manage_items_screen.dart::HomeManageItemsScreen" {
+  +HomeController controller
+  +Widget build()
+}
+
+"ecommerce_app::presentation::home::subscreen::home_manage_items_screen.dart::HomeManageItemsScreen" o-- "ecommerce_app::presentation::home::home_controller.dart::HomeController"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "ecommerce_app::presentation::home::subscreen::home_manage_items_screen.dart::HomeManageItemsScreen"
+
+class "ecommerce_app::presentation::home::subscreen::home_shopping_cart_screen.dart::HomeShoppingCartScreen" {
+  +HomeController controller
+  +Widget build()
+}
+
+"ecommerce_app::presentation::home::subscreen::home_shopping_cart_screen.dart::HomeShoppingCartScreen" o-- "ecommerce_app::presentation::home::home_controller.dart::HomeController"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "ecommerce_app::presentation::home::subscreen::home_shopping_cart_screen.dart::HomeShoppingCartScreen"
+
+class "ecommerce_app::presentation::profile::profile_controller.dart::ProfileController" {
+  +TextEditingController profileNameEditController
+  +RxBool isSubmitted
+  +void onInit()
+}
+
+"ecommerce_app::presentation::profile::profile_controller.dart::ProfileController" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"ecommerce_app::presentation::profile::profile_controller.dart::ProfileController" o-- "get::get_rx::src::rx_types::rx_types.dart::RxBool"
+"get::get_state_manager::src::simple::get_controllers.dart::GetxController" <|-- "ecommerce_app::presentation::profile::profile_controller.dart::ProfileController"
+
+class "ecommerce_app::presentation::profile::profile_edit_screen.dart::ProfileEditScreen" {
+  +bool isNew
+  +Widget build()
+}
+
+"get::get_state_manager::src::simple::get_view.dart::GetView" <|-- "ecommerce_app::presentation::profile::profile_edit_screen.dart::ProfileEditScreen"
+
+class "ecommerce_app::services::account_service.dart::AccountService" {
+  +RxBool isLogin
+  +RxBool permissionGranted
+  +bool isAdmin
+  +dynamic onInit()
+}
+
+"ecommerce_app::services::account_service.dart::AccountService" o-- "get::get_rx::src::rx_types::rx_types.dart::RxBool"
+"get::get_state_manager::src::rx_flutter::rx_disposable.dart::GetxService" <|-- "ecommerce_app::services::account_service.dart::AccountService"
+
+class "ecommerce_app::services::connectivity_service.dart::ConnectivityService" {
+  +RxBool connected
+  -void _getNetworkStatus()
+}
+
+"ecommerce_app::services::connectivity_service.dart::ConnectivityService" o-- "get::get_rx::src::rx_types::rx_types.dart::RxBool"
+"get::get_state_manager::src::rx_flutter::rx_disposable.dart::GetxService" <|-- "ecommerce_app::services::connectivity_service.dart::ConnectivityService"
+
+class "ecommerce_app::services::persistence_service.dart::PersistenceService" {
+  +Box<ImageModel> imageBox
+  +Box<ProductDataModel> productsBox
+  +dynamic onInit()
+  +dynamic getImageFile()
+  +dynamic checkDBVersion()
+  +dynamic syncRemoteDBWithLocalDB()
+}
+
+"ecommerce_app::services::persistence_service.dart::PersistenceService" o-- "hive::hive.dart::Box<ImageModel>"
+"ecommerce_app::services::persistence_service.dart::PersistenceService" o-- "hive::hive.dart::Box<ProductDataModel>"
+"get::get_state_manager::src::rx_flutter::rx_disposable.dart::GetxService" <|-- "ecommerce_app::services::persistence_service.dart::PersistenceService"
+
+class "ecommerce_app::theme.dart::MaterialTheme" {
+  +TextTheme textTheme
+  +List<ExtendedColor> extendedColors
+  {static} +MaterialScheme lightScheme()
+  +ThemeData light()
+  {static} +MaterialScheme lightMediumContrastScheme()
+  +ThemeData lightMediumContrast()
+  {static} +MaterialScheme lightHighContrastScheme()
+  +ThemeData lightHighContrast()
+  {static} +MaterialScheme darkScheme()
+  +ThemeData dark()
+  {static} +MaterialScheme darkMediumContrastScheme()
+  +ThemeData darkMediumContrast()
+  {static} +MaterialScheme darkHighContrastScheme()
+  +ThemeData darkHighContrast()
+  +ThemeData theme()
+}
+
+"ecommerce_app::theme.dart::MaterialTheme" o-- "flutter::src::material::text_theme.dart::TextTheme"
+
+class "ecommerce_app::theme.dart::MaterialScheme" {
+  +Brightness brightness
+  +Color primary
+  +Color surfaceTint
+  +Color onPrimary
+  +Color primaryContainer
+  +Color onPrimaryContainer
+  +Color secondary
+  +Color onSecondary
+  +Color secondaryContainer
+  +Color onSecondaryContainer
+  +Color tertiary
+  +Color onTertiary
+  +Color tertiaryContainer
+  +Color onTertiaryContainer
+  +Color error
+  +Color onError
+  +Color errorContainer
+  +Color onErrorContainer
+  +Color background
+  +Color onBackground
+  +Color surface
+  +Color onSurface
+  +Color surfaceVariant
+  +Color onSurfaceVariant
+  +Color outline
+  +Color outlineVariant
+  +Color shadow
+  +Color scrim
+  +Color inverseSurface
+  +Color inverseOnSurface
+  +Color inversePrimary
+  +Color primaryFixed
+  +Color onPrimaryFixed
+  +Color primaryFixedDim
+  +Color onPrimaryFixedVariant
+  +Color secondaryFixed
+  +Color onSecondaryFixed
+  +Color secondaryFixedDim
+  +Color onSecondaryFixedVariant
+  +Color tertiaryFixed
+  +Color onTertiaryFixed
+  +Color tertiaryFixedDim
+  +Color onTertiaryFixedVariant
+  +Color surfaceDim
+  +Color surfaceBright
+  +Color surfaceContainerLowest
+  +Color surfaceContainerLow
+  +Color surfaceContainer
+  +Color surfaceContainerHigh
+  +Color surfaceContainerHighest
+}
+
+"ecommerce_app::theme.dart::MaterialScheme" o-- "dart::ui::Brightness"
+"ecommerce_app::theme.dart::MaterialScheme" o-- "dart::ui::Color"
+
+class "ecommerce_app::theme.dart::ExtendedColor" {
+  +Color seed
+  +Color value
+  +ColorFamily light
+  +ColorFamily lightHighContrast
+  +ColorFamily lightMediumContrast
+  +ColorFamily dark
+  +ColorFamily darkHighContrast
+  +ColorFamily darkMediumContrast
+}
+
+"ecommerce_app::theme.dart::ExtendedColor" o-- "dart::ui::Color"
+"ecommerce_app::theme.dart::ExtendedColor" o-- "ecommerce_app::theme.dart::ColorFamily"
+
+class "ecommerce_app::theme.dart::ColorFamily" {
+  +Color color
+  +Color onColor
+  +Color colorContainer
+  +Color onColorContainer
+}
+
+"ecommerce_app::theme.dart::ColorFamily" o-- "dart::ui::Color"
+
+class "ecommerce_app::utils::constants.dart::Constants" {
+  {static} +String appName
+  {static} +String appVersion
+  {static} +String appDescription
+  {static} +String appAuthor
+  {static} +String appEmail
+  {static} +String appWebsite
+}
+
+class "ecommerce_app::utils::enums::app_state_enum.dart::AppState" {
+  +int index
+  {static} +List<AppState> values
+  {static} +AppState loading
+  {static} +AppState error
+  {static} +AppState idle
+}
+
+"ecommerce_app::utils::enums::app_state_enum.dart::AppState" o-- "ecommerce_app::utils::enums::app_state_enum.dart::AppState"
+"dart::core::Enum" <|-- "ecommerce_app::utils::enums::app_state_enum.dart::AppState"
+
+class "ecommerce_app::utils::enums::entry_state_enum.dart::EntryState" {
+  +int index
+  {static} +List<EntryState> values
+  {static} +EntryState googleLogin
+  {static} +EntryState emailRegister
+  {static} +EntryState emailLogin
+}
+
+"ecommerce_app::utils::enums::entry_state_enum.dart::EntryState" o-- "ecommerce_app::utils::enums::entry_state_enum.dart::EntryState"
+"dart::core::Enum" <|-- "ecommerce_app::utils::enums::entry_state_enum.dart::EntryState"
+
+class "ecommerce_app::utils::log.dart::Log" {
+  {static} +void red()
+  {static} +void green()
+  {static} +void yellow()
+  {static} +void cyan()
+  {static} +void pink()
+}
+
+class "ecommerce_app::widgets::bottom_nav_bar.dart::BottomNavBar" {
+  +ConnectivityService service
+  +List<BottomNavigationBarItem> items
+  +int index
+  +Widget build()
+}
+
+"ecommerce_app::widgets::bottom_nav_bar.dart::BottomNavBar" o-- "ecommerce_app::services::connectivity_service.dart::ConnectivityService"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "ecommerce_app::widgets::bottom_nav_bar.dart::BottomNavBar"
+
+class "ecommerce_app::widgets::custom_card_widget.dart::CustomCardWidget" {
+  +Widget child
+  +Widget build()
+}
+
+"ecommerce_app::widgets::custom_card_widget.dart::CustomCardWidget" o-- "flutter::src::widgets::framework.dart::Widget"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "ecommerce_app::widgets::custom_card_widget.dart::CustomCardWidget"
+
+class "ecommerce_app::widgets::custom_text_field.dart::CustomTextField" {
+  +String labelText
+  +TextEditingController controller
+  +bool obscureText
+  +dynamic Function(String)? onChanged
+  +ValueNotifier<String?>? errorNotifier
+  +TextInputType? keyboardType
+  +Color? color
+  +Widget? prefix
+  +int? maxLines
+  +Widget build()
+}
+
+"ecommerce_app::widgets::custom_text_field.dart::CustomTextField" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"ecommerce_app::widgets::custom_text_field.dart::CustomTextField" o-- "null::dynamic Function(String)"
+"ecommerce_app::widgets::custom_text_field.dart::CustomTextField" o-- "flutter::src::foundation::change_notifier.dart::ValueNotifier<String>"
+"ecommerce_app::widgets::custom_text_field.dart::CustomTextField" o-- "flutter::src::services::text_input.dart::TextInputType"
+"ecommerce_app::widgets::custom_text_field.dart::CustomTextField" o-- "dart::ui::Color"
+"ecommerce_app::widgets::custom_text_field.dart::CustomTextField" o-- "flutter::src::widgets::framework.dart::Widget"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "ecommerce_app::widgets::custom_text_field.dart::CustomTextField"
+
+class "ecommerce_app::widgets::post_image_widget.dart::PostImageWidget" {
+  +String url
+  +double width
+  +double height
+  +BoxFit? fit
+  +Widget build()
+}
+
+"ecommerce_app::widgets::post_image_widget.dart::PostImageWidget" o-- "flutter::src::painting::box_fit.dart::BoxFit"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "ecommerce_app::widgets::post_image_widget.dart::PostImageWidget"
+
+class "ecommerce_app::widgets::watermark_widget.dart::WatermarkWidget" {
+  +String text
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "ecommerce_app::widgets::watermark_widget.dart::WatermarkWidget"
+
+
+@enduml
