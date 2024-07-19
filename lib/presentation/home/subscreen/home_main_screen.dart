@@ -1,8 +1,9 @@
 import 'package:ecommerce_app/data/models/product_data_model.dart';
 import 'package:ecommerce_app/presentation/home/home_controller.dart';
 import 'package:ecommerce_app/widgets/post_image_widget.dart';
-import 'package:ecommerce_app/widgets/watermark_widget.dart';
+// import 'package:ecommerce_app/widgets/watermark_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 
 class HomeMainScreen extends StatelessWidget {
@@ -28,8 +29,8 @@ class HomeMainScreen extends StatelessWidget {
                   width: Get.width,
                   margin: const EdgeInsets.only(left: 8, right: 8, bottom: 8, top: 8),
                   constraints: const BoxConstraints(
-                    minHeight: 90,
-                    maxHeight: 180,
+                    minHeight: 60,
+                    maxHeight: 120,
                   ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -70,118 +71,113 @@ class HomeMainScreen extends StatelessWidget {
                       ),
                     ),
                   )
-                  : GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                      childAspectRatio: 0.6
-                    ),
-                    itemCount: controller.productsData.length,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index){
-                      String? url = controller.productsData[index].productImageUrl ?? 'none';
-                      RxBool isAddActive = false.obs;
-                      RxInt qty = 0.obs;
-                  
-                      return Card(
-                        color: Colors.transparent,
-                        elevation: 0,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            url=='none'
-                          ? const Icon(Icons.image_not_supported_rounded)
-                          : PostImageWidget(
-                              url: controller.productsData[index].productImageUrl!, 
-                              width: Get.width/2 - 32, 
-                              height: Get.width/2 - 32
-                            ),
-                            const SizedBox(height: 8,),
-                            Text(controller.productsData[index].productName),
-                            Text(
-                              controller.formatToRupiah(controller.productsData[index].productPrice)
-                            ),
-                            controller.isAdmin
-                          ? Text("${controller.productsData[index].qty} remaining") 
-                          : Obx(
-                            ()=> isAddActive.value
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  IconButton(
-                                    onPressed: (){
-                                      qty.value--;
-                                      if(qty.value==0){
-                                        isAddActive.value = false;
-                                      }
-                                    },
-                                    icon: const Icon(Icons.remove),
-                                  ),
-                                  Text(qty.value.toString()),
-                                  IconButton(
-                                    onPressed: (){
-                                      if(qty.value == controller.productsData[index].qty){
-                                        qty.value = qty.value;
-                                      }else {
-                                        qty.value ++;
-                                      }
-                                    },
-                                    icon: const Icon(Icons.add),
-                                  )
-                                ],
-                              )
-                            : ElevatedButton(
-                                onPressed: (){
-                                  isAddActive.value = true;
-                                  qty.value++;
-                                },
-                                child: controller.productsData[index].qty == 0? const Text('Unavailable') : const Text('Add to Cart'),
-                              ),
-                            ),
-                            Obx(
-                            ()=>isAddActive.value
-                            ? ElevatedButton(
-                                onPressed: () async {
-                                  if(qty.value <= controller.productsData[index].qty){
-                                    ProductDataModel product = ProductDataModel(
-                                      productImageUrl: controller.productsData[index].productImageUrl!,
-                                      productName: controller.productsData[index].productName,
-                                      productPrice: controller.productsData[index].productPrice, 
-                                      productDesc: controller.productsData[index].productDesc,
-                                      qty: qty.value,
-                                    );
-                                    // controller.shoppingCart.value.products!.add(
-                                    //   product
-                                    // );
-                                    await controller.addProductToCart(product);
-                                  } else {
-                                    Get.snackbar(
-                                      'Failed: amount left is ${controller.productsData[index].qty}',
-                                      '${controller.productsData[index].productName} is not available in that amount',
-                                      snackPosition: SnackPosition.BOTTOM,
-                                      duration: const Duration(seconds: 3),
-                                    );
-                                  }
-                                },
-                                child: const Text('Add to Cart'),
-                              ) 
-                            : const SizedBox.shrink()
-                            )
-                          ],
-                        )
-                      );
-                    }
-                  
-                  ),
+                : buildGridView(),
                 )
               ],
             ),
           ),
-          const WatermarkWidget(text: "Pending Payment"),
+          // const WatermarkWidget(text: "Pending Payment"),
         ],
       ),
+    );
+  }
+
+  StaggeredGrid buildGridView() {
+    return StaggeredGrid.count(
+      crossAxisCount: 2,
+      crossAxisSpacing: 2,
+      mainAxisSpacing: 8,
+      children: controller.productsData.map((product) {
+        String? url = product.productImageUrl ?? 'none';
+        RxBool isAddActive = false.obs;
+        RxInt qty = 0.obs;
+
+        return Card(
+          color: Colors.transparent,
+          elevation: 0,
+          margin: const EdgeInsets.all(0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              url == 'none'
+            ? const Icon(Icons.image_not_supported_rounded)
+            : PostImageWidget(
+                url: product.productImageUrl!,
+                width: Get.width / 2 - 32,
+                height: Get.width / 2 - 32,
+              ),
+              const SizedBox(height: 8),
+              Text(product.productName),
+              Text(controller.formatToRupiah(product.productPrice)),
+              controller.isAdmin
+            ? Text("${product.qty} remaining")
+            : Obx(
+                () => isAddActive.value
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        qty.value--;
+                        if (qty.value == 0) {
+                          isAddActive.value = false;
+                        }
+                      },
+                      icon: const Icon(Icons.remove),
+                    ),
+                    Text(qty.value.toString()),
+                    IconButton(
+                      onPressed: () {
+                        if (qty.value == product.qty) {
+                          qty.value = qty.value;
+                        } else {
+                          qty.value++;
+                        }
+                      },
+                      icon: const Icon(Icons.add),
+                    ),
+                  ],
+                )
+              : ElevatedButton(
+                  onPressed: () {
+                    isAddActive.value = true;
+                    qty.value++;
+                  },
+                  child: product.qty == 0
+                ? const Text('Unavailable')
+                : const Text('Add to Cart'),
+                ),
+              ),
+              Obx(
+                () => isAddActive.value
+              ? ElevatedButton(
+                  onPressed: () async {
+                    if (qty.value <= product.qty) {
+                      ProductDataModel tempProduct = ProductDataModel(
+                        productImageUrl: product.productImageUrl!,
+                        productName: product.productName,
+                        productPrice: product.productPrice,
+                        productDesc: product.productDesc,
+                        qty: qty.value,
+                      );
+                      await controller.addProductToCart(tempProduct);
+                    } else {
+                      Get.snackbar(
+                        'Failed: amount left is ${product.qty}',
+                        '${product.productName} is not available in that amount',
+                        snackPosition: SnackPosition.BOTTOM,
+                        duration: const Duration(seconds: 3),
+                      );
+                    }
+                  },
+                  child: const Text('Add to Cart'),
+                )
+              : const SizedBox.shrink(),
+              ),
+            ],
+          ),
+        );
+      }).toList()
     );
   }
 }

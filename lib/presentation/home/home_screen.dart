@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:ecommerce_app/presentation/home/home_controller.dart';
 import 'package:ecommerce_app/presentation/home/subscreen/home_main_screen.dart';
 import 'package:ecommerce_app/presentation/home/subscreen/home_manage_items_screen.dart';
@@ -28,17 +29,22 @@ class HomeScreen extends GetView<HomeController> {
     return Scaffold(
       drawer: Drawer(
         //logout 
+        width: Get.width * 0.3,
         child: Stack(
           children: [
             Align(
               alignment: Alignment.center,
-              child: ListTile(
-                title: const Text('Logout'),
-                onTap: ()=>controller.logout(),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  backgroundColor: Get.theme.colorScheme.onSurface
+                ),
+                child: const Center(child: AutoSizeText('Logout')),
+                onPressed: ()=>controller.logout(),
               ),
             ),
           ],
-        )
+        ),
       ),
       appBar: AppBar(
         backgroundColor: Get.theme.colorScheme.onPrimary,

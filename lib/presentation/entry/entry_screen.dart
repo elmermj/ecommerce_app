@@ -1,4 +1,6 @@
+import 'package:ecommerce_app/main.dart';
 import 'package:ecommerce_app/presentation/entry/entry_controller.dart';
+import 'package:ecommerce_app/utils/enums/app_state_enum.dart';
 import 'package:ecommerce_app/utils/enums/entry_state_enum.dart';
 import 'package:ecommerce_app/widgets/custom_card_widget.dart';
 import 'package:ecommerce_app/widgets/custom_text_field.dart';
@@ -18,10 +20,28 @@ class EntryScreen extends GetView<EntryController> {
       body: Stack(
         children: [
           Align(
-            alignment: const AlignmentDirectional(0, 0.6),
+            alignment: const AlignmentDirectional(0, 0.8),
             child: Obx(()=> switchState(controller.state.value)),
           )
         ],
+      ),
+      bottomNavigationBar: SizedBox(
+        height: kBottomNavigationBarHeight,
+        width: Get.width,
+        child: Obx(
+          () {
+            switch (appState.value) {
+              case AppState.loading:
+                return const Center(child: CircularProgressIndicator());
+              case AppState.idle:
+                return const SizedBox.shrink();
+              default:
+                return const Center(
+                  child: Text('Error'),
+                );
+            }
+          }
+        ),
       ),
     );
   }

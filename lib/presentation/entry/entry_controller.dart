@@ -78,22 +78,27 @@ class EntryController extends GetxController{
         final result = await userDataModelRepository.registerUser(user);
         result.fold(
           (exception) {
+          if(Get.isSnackbarOpen) Get.back();
             Get.snackbar('Registration Failed', exception.toString());
           },
           (_) {
+          if(Get.isSnackbarOpen) Get.back();
             Get.snackbar('Registration Successful', 'User registered successfully');
             Get.off(()=>HomeScreen(isAdmin: emailEditController.text.contains('admin'),));
           },
         );
       } else {
+        if(Get.isSnackbarOpen) Get.back();
         Get.snackbar('Registration Failed', 'Failed to create user');
       }
     } on FirebaseAuthException catch (e) {
-      Get.isSnackbarOpen ? Get.back() : Get.snackbar('Email Registration', e.message ?? 'Registration failed');
+      if(Get.isSnackbarOpen) Get.back();
       Get.snackbar('Email Registration', e.message ?? 'Registration failed');
     } catch (e) {
+      if(Get.isSnackbarOpen) Get.back();
       Get.snackbar('Registration Error', e.toString());
     } finally {
+      if(Get.isSnackbarOpen) Get.back();
       appState.value = AppState.idle;
     }
   }
@@ -106,44 +111,53 @@ class EntryController extends GetxController{
       appState.value = AppState.idle;
       return;
     }
-
+    Get.snackbar('Email Login', 'Logging in..', duration: const Duration(minutes: 1));
     try {
       final result = await userDataModelRepository.emailLoginUser(emailEditController.text, passwordEditController.text);
       result.fold(
         (exception) {
+          if(Get.isSnackbarOpen) Get.back();
           Get.snackbar('Login Failed', exception.toString());
         },
         (user) {
+          if(Get.isSnackbarOpen) Get.back();
           Get.snackbar('Login Successful', 'Welcome back, ${user.userName}!');
           Get.off(()=>HomeScreen(isAdmin: emailEditController.text.contains('admin')));
         }
       );
     } on FirebaseAuthException catch (e) {
+      if(Get.isSnackbarOpen) Get.back();
       Get.snackbar('Login Error', e.message ?? 'Login failed');
     } catch (e) {
+      if(Get.isSnackbarOpen) Get.back();
       Get.snackbar('Login Error', e.toString());
     } finally {
+      if(Get.isSnackbarOpen) Get.back();
       appState.value = AppState.idle;
     }
   }
 
   Future<void> commitGoogleLogin() async {
     appState.value = AppState.loading;
-
+    Get.snackbar('Google Login', 'Logging in..', duration: const Duration(minutes: 1));
     try {
       final result = await userDataModelRepository.googleLoginUser();
       result.fold(
         (exception) {
+          if(Get.isSnackbarOpen) Get.back();
           Get.snackbar('Login Failed', exception.toString());
         },
         (user) {
+          if(Get.isSnackbarOpen) Get.back();
           Get.snackbar('Login Successful', 'Welcome back, ${user.userName}!');
           Get.off(()=>HomeScreen(isAdmin: emailEditController.text.contains('admin'),));
         },
       );
     } catch (e) {
+      if(Get.isSnackbarOpen) Get.back();
       Get.snackbar('Login Error', e.toString());
     } finally {
+      if(Get.isSnackbarOpen) Get.back();
       appState.value = AppState.idle;
     }
   }

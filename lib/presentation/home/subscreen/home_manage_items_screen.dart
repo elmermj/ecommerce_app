@@ -1,7 +1,7 @@
 import 'package:ecommerce_app/presentation/add_stock/add_stock_screen.dart';
 import 'package:ecommerce_app/presentation/home/home_controller.dart';
 import 'package:ecommerce_app/widgets/post_image_widget.dart';
-import 'package:ecommerce_app/widgets/watermark_widget.dart';
+// import 'package:ecommerce_app/widgets/watermark_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -157,7 +157,7 @@ class HomeManageItemsScreen extends StatelessWidget {
               ),
             ),
           ),
-          const WatermarkWidget(text: "Pending Payment"),
+          // const WatermarkWidget(text: "Pending Payment"),
         ],
       ),
     );
