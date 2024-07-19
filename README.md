@@ -1,3 +1,3 @@
 # ecommerce_app
 
-A new Flutter project.
+A simple e-commerce thesis project for a university student embedded with clean architecture.
