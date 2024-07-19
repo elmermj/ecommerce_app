@@ -31,6 +31,7 @@ dependencies:
     git:
       url: https://github.com/elmermj/new_dcdg.git
       ref: main
+  flutter_staggered_grid_view :
 
 dev_dependencies:
   flutter_test:
