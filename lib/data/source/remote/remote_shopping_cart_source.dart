@@ -100,6 +100,7 @@ class RemoteShoppingCartDataSourceImpl implements RemoteShoppingCartDataSource {
     List<int> stockQty = [];
     List<Map<String, dynamic>> checkMaps = [];
     String userEmail = FirebaseAuth.instance.currentUser!.email!;
+    DateTime now = DateTime.now();
     var batch = firestore.batch();
 
     for (var product in products!) {
@@ -125,6 +126,10 @@ class RemoteShoppingCartDataSourceImpl implements RemoteShoppingCartDataSource {
           'qty': stockQty[i] - products[i].qty
         });
       }
+      batch.set(firestore.collection('sales').doc('${now.year}${now.month}').collection('checkouts').doc(
+        '${now.difference(DateTime(2020)).inSeconds}_$userEmail'), 
+        shoppingCart.toMap()
+      );
       batch.delete(firestore.collection('users').doc(userEmail).collection('shoppingCart').doc('${userEmail}_cart'));
       await batch.commit();
     }

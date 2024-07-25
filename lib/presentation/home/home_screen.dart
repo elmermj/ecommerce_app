@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:ecommerce_app/presentation/home/home_controller.dart';
 import 'package:ecommerce_app/presentation/home/subscreen/home_main_screen.dart';
 import 'package:ecommerce_app/presentation/home/subscreen/home_manage_items_screen.dart';
+import 'package:ecommerce_app/presentation/home/subscreen/home_sales_screen.dart';
 import 'package:ecommerce_app/presentation/home/subscreen/home_shopping_cart_screen.dart';
 import 'package:ecommerce_app/services/account_service.dart';
 import 'package:ecommerce_app/services/persistence_service.dart';
@@ -54,6 +55,8 @@ class HomeScreen extends GetView<HomeController> {
                 return const Text("Home");
               case 1:
                 return const Text("Manage Items");
+              case 2:
+                return const Text("Sales");
               default:
                 return const Text("Shopping Cart");
             }
@@ -90,6 +93,8 @@ class HomeScreen extends GetView<HomeController> {
                 return HomeMainScreen();
               case 1:
                 return HomeManageItemsScreen();
+              case 2:
+                return HomeSalesScreen();
               default:
                 return HomeShoppingCartScreen();
             }
@@ -161,6 +166,29 @@ class HomeScreen extends GetView<HomeController> {
                   onPressed: () => controller.index.value = 1,
                 ),
               ),
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(0),
+                    )
+                  ),
+                  child: SizedBox.expand(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Icon(Icons.shopping_cart, color: controller.index.value == 1? Get.theme.colorScheme.inversePrimary: Get.theme.colorScheme.outline,),
+                        Text('Sales', style: TextStyle(
+                          color: controller.index.value == 1? Get.theme.colorScheme.inversePrimary: Get.theme.colorScheme.outline,
+                          fontSize: 12
+                        ),)
+                      ],
+                    ),
+                  ),
+                  onPressed: () => controller.index.value = 2,
+                ),
+              ),
             ],
           ),
         ):Container(
@@ -212,7 +240,7 @@ class HomeScreen extends GetView<HomeController> {
                       ],
                     ),
                   ),
-                  onPressed: () => controller.index.value = 2,
+                  onPressed: () => controller.index.value = 3,
                 ),
               ),
             ],
